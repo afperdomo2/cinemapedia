@@ -1,5 +1,5 @@
-import 'package:cinemapedia/config/router/app.router.dart';
-import 'package:cinemapedia/config/theme/app.theme.dart';
+import 'package:cinemapedia/config/router/app_router.dart';
+import 'package:cinemapedia/config/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 void main() {

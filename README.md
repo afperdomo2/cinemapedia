@@ -20,3 +20,16 @@ En el archivo `.env`, tomar como base el archivo de `example.env`, para crear la
 URL de la API: <https://www.themoviedb.org/>
 
 Documentación de desarrollo: <https://developer.themoviedb.org/docs/getting-started>
+
+## Comandos de ayuda
+
+```sh
+# Limpiar temporales
+flutter clean
+
+# Instalar los paquetes
+flutter pub get
+
+# Ejecutar el doctor para validar si todo está correcto
+flutter doctor
+```

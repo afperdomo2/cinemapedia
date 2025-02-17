@@ -13,6 +13,8 @@ class MoviesSlideShow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return SizedBox(
       height: 210,
       width: double.infinity,
@@ -20,8 +22,22 @@ class MoviesSlideShow extends StatelessWidget {
         viewportFraction: 0.8, // 80% de la pantalla
         scale: 0.9, // 90% del tamaño
         autoplay: true,
+        pagination: _buildPaginationDots(colors),
         itemCount: movies.length,
         itemBuilder: (context, index) => _Slide(movies[index]),
+      ),
+    );
+  }
+
+  SwiperPagination _buildPaginationDots(colors) {
+    return SwiperPagination(
+      margin: const EdgeInsets.only(top: 10),
+      alignment: Alignment.bottomCenter,
+      builder: DotSwiperPaginationBuilder(
+        activeColor: colors.primary,
+        color: Colors.grey[400],
+        size: 9,
+        space: 4.5,
       ),
     );
   }

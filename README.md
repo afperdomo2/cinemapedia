@@ -56,11 +56,16 @@ dart fix --apply
 ### ⌨️3.2 Comandos
 
 ```sh
+# Instalar los paquetes o dependencias
+flutter pub get
+
+# Compilar y ejecutar la aplicación en un dispositivo conectado o emulador
+flutter run
+```
+
+```sh
 # Limpiar temporales
 flutter clean
-
-# Instalar los paquetes
-flutter pub get
 
 # Ejecutar el doctor para validar si todo está correcto
 flutter doctor

@@ -42,17 +42,38 @@ class __HomeViewState extends ConsumerState<_HomeView> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Column(
-      children: [
-        const CustomAppBar(),
-        MoviesSlideShow(movies: moviesSlideShow),
-        MoviesHorizontalListView(
-          nowPlayingMovies,
-          title: 'En cines',
-          subtitle: 'Lunes 17',
-          loadNextPage: () => loadNextPage(),
-        )
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const CustomAppBar(),
+          MoviesSlideShow(movies: moviesSlideShow),
+          MoviesHorizontalListView(
+            nowPlayingMovies,
+            title: 'En cines',
+            subtitle: 'Lunes 17',
+            loadNextPage: () => loadNextPage(),
+          ),
+          MoviesHorizontalListView(
+            nowPlayingMovies,
+            title: 'Próximamente',
+            subtitle: 'Estrenos',
+            loadNextPage: () => loadNextPage(),
+          ),
+          MoviesHorizontalListView(
+            nowPlayingMovies,
+            title: 'Populares',
+            subtitle: 'Semana',
+            loadNextPage: () => loadNextPage(),
+          ),
+          MoviesHorizontalListView(
+            nowPlayingMovies,
+            title: 'Mejor valoradas',
+            subtitle: '2024',
+            loadNextPage: () => loadNextPage(),
+          ),
+          const SizedBox(height: 10),
+        ],
+      ),
     );
   }
 }

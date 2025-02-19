@@ -28,6 +28,7 @@ class __HomeViewState extends ConsumerState<_HomeView> {
   @override
   void initState() {
     super.initState();
+    // Carga la primera página de películas en cines.
     ref.read(nowPlayingMoviesProvider.notifier).loadNextPage();
   }
 
@@ -35,6 +36,7 @@ class __HomeViewState extends ConsumerState<_HomeView> {
   Widget build(BuildContext context) {
     final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
     final moviesSlideShow = ref.watch(moviewsSlideShowProvider);
+    final loadNextPage = ref.read(nowPlayingMoviesProvider.notifier).loadNextPage;
 
     if (moviesSlideShow.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -44,7 +46,12 @@ class __HomeViewState extends ConsumerState<_HomeView> {
       children: [
         const CustomAppBar(),
         MoviesSlideShow(movies: moviesSlideShow),
-        MoviesHorizontalListView(nowPlayingMovies, title: 'En cines', subtitle: 'Lunes 17')
+        MoviesHorizontalListView(
+          nowPlayingMovies,
+          title: 'En cines',
+          subtitle: 'Lunes 17',
+          loadNextPage: () => loadNextPage(),
+        )
       ],
     );
   }

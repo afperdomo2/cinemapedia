@@ -3,7 +3,7 @@ import 'package:cinemapedia/config/helpers/human_formatter.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
 
-class MoviesHorizontalListView extends StatelessWidget {
+class MoviesHorizontalListView extends StatefulWidget {
   final List<Movie> movies;
   final String? title;
   final String? subtitle;
@@ -18,18 +18,47 @@ class MoviesHorizontalListView extends StatelessWidget {
   });
 
   @override
+  State<MoviesHorizontalListView> createState() => _MoviesHorizontalListViewState();
+}
+
+class _MoviesHorizontalListViewState extends State<MoviesHorizontalListView> {
+  final scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController.addListener(() {
+      if (widget.loadNextPage == null) return;
+      final currentScrollPosition = scrollController.position.pixels;
+      final maxScrollablePosition = scrollController.position.maxScrollExtent;
+      final isNearEndOfList = currentScrollPosition > maxScrollablePosition - 300;
+      // Si el usuario se encuentra cerca del final de la lista, se carga la siguiente página.
+      if (isNearEndOfList) {
+        widget.loadNextPage!();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose(); // Libera los recursos utilizados por el widget.
+    scrollController.dispose(); // Libera los recursos utilizados por el controlador de desplazamiento.
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 350,
       child: Column(
         children: [
-          if (title != null || subtitle != null) _Title(title, subtitle),
+          if (widget.title != null || widget.subtitle != null) _Title(widget.title, widget.subtitle),
           Expanded(
             child: ListView.builder(
+              controller: scrollController,
               scrollDirection: Axis.horizontal,
-              itemCount: movies.length,
+              itemCount: widget.movies.length,
               physics: const BouncingScrollPhysics(),
-              itemBuilder: (context, index) => _Slide(movies[index]),
+              itemBuilder: (context, index) => _Slide(widget.movies[index]),
             ),
           ),
         ],

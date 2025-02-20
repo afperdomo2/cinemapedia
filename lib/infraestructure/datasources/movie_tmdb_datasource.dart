@@ -14,16 +14,28 @@ class MovieTMDbDataSource extends MovieDataSource {
     },
   ));
 
-  @override
-  Future<List<Movie>> getNowPlaying({int page = 1}) async {
-    final response = await dio.get('/movie/now_playing', queryParameters: {
-      'page': page,
-    });
-    final List<Movie> movies = MovieListTMDbResponse.fromJson(response.data)
+  List<Movie> _mapResponseToMovies(Map<String, dynamic> responseData) {
+    final List<Movie> movies = MovieListTMDbResponse.fromJson(responseData)
         .results
         .where((movie) => movie.posterPath != 'no-poster')
         .map((movie) => MovieMapper.movieTMDbResponseToEntity(movie))
         .toList();
     return movies;
+  }
+
+  @override
+  Future<List<Movie>> getNowPlaying({int page = 1}) async {
+    final response = await dio.get('/movie/now_playing', queryParameters: {
+      'page': page,
+    });
+    return _mapResponseToMovies(response.data);
+  }
+
+  @override
+  Future<List<Movie>> getPopular({int page = 1}) async {
+    final response = await dio.get('/movie/popular', queryParameters: {
+      'page': page,
+    });
+    return _mapResponseToMovies(response.data);
   }
 }

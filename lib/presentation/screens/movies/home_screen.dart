@@ -1,3 +1,4 @@
+import 'package:cinemapedia/config/helpers/human_formatter.dart';
 import 'package:cinemapedia/presentation/providers/providers.dart';
 import 'package:cinemapedia/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -30,13 +31,14 @@ class __HomeViewState extends ConsumerState<_HomeView> {
     super.initState();
     // Carga la primera página de películas en cines.
     ref.read(nowPlayingMoviesProvider.notifier).loadNextPage();
+    ref.read(popularMoviesProvider.notifier).loadNextPage();
   }
 
   @override
   Widget build(BuildContext context) {
     final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
     final moviesSlideShow = ref.watch(moviewsSlideShowProvider);
-    final loadNextPage = ref.read(nowPlayingMoviesProvider.notifier).loadNextPage;
+    final popularMovies = ref.watch(popularMoviesProvider);
 
     if (moviesSlideShow.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -63,27 +65,14 @@ class __HomeViewState extends ConsumerState<_HomeView> {
                 MoviesSlideShow(movies: moviesSlideShow),
                 MoviesHorizontalListView(
                   nowPlayingMovies,
-                  title: 'En cines',
-                  subtitle: 'Lunes 17',
-                  loadNextPage: () => loadNextPage(),
+                  title: 'En cartelera',
+                  subtitle: HumanFormatter.currentDa(DateTime.now()),
+                  loadNextPage: () => ref.read(nowPlayingMoviesProvider.notifier).loadNextPage(),
                 ),
                 MoviesHorizontalListView(
-                  nowPlayingMovies,
-                  title: 'Próximamente',
-                  subtitle: 'Estrenos',
-                  loadNextPage: () => loadNextPage(),
-                ),
-                MoviesHorizontalListView(
-                  nowPlayingMovies,
+                  popularMovies,
                   title: 'Populares',
-                  subtitle: 'Semana',
-                  loadNextPage: () => loadNextPage(),
-                ),
-                MoviesHorizontalListView(
-                  nowPlayingMovies,
-                  title: 'Mejor valoradas',
-                  subtitle: '2024',
-                  loadNextPage: () => loadNextPage(),
+                  loadNextPage: () => ref.read(popularMoviesProvider.notifier).loadNextPage(),
                 ),
                 const SizedBox(height: 10),
               ],

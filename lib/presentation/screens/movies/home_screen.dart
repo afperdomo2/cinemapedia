@@ -29,9 +29,11 @@ class __HomeViewState extends ConsumerState<_HomeView> {
   @override
   void initState() {
     super.initState();
-    // Carga la primera página de películas en cines.
+
     ref.read(nowPlayingMoviesProvider.notifier).loadNextPage();
     ref.read(popularMoviesProvider.notifier).loadNextPage();
+    ref.read(topRatedMoviesProvider.notifier).loadNextPage();
+    ref.read(upcomingMoviesProvider.notifier).loadNextPage();
   }
 
   @override
@@ -39,6 +41,8 @@ class __HomeViewState extends ConsumerState<_HomeView> {
     final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
     final moviesSlideShow = ref.watch(moviewsSlideShowProvider);
     final popularMovies = ref.watch(popularMoviesProvider);
+    final topRatedMovies = ref.watch(topRatedMoviesProvider);
+    final upcomingMovies = ref.watch(upcomingMoviesProvider);
 
     if (moviesSlideShow.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -73,6 +77,16 @@ class __HomeViewState extends ConsumerState<_HomeView> {
                   popularMovies,
                   title: 'Populares',
                   loadNextPage: () => ref.read(popularMoviesProvider.notifier).loadNextPage(),
+                ),
+                MoviesHorizontalListView(
+                  topRatedMovies,
+                  title: 'Mejor valoradas',
+                  loadNextPage: () => ref.read(topRatedMoviesProvider.notifier).loadNextPage(),
+                ),
+                MoviesHorizontalListView(
+                  upcomingMovies,
+                  title: 'Próximamente',
+                  loadNextPage: () => ref.read(upcomingMoviesProvider.notifier).loadNextPage(),
                 ),
                 const SizedBox(height: 10),
               ],

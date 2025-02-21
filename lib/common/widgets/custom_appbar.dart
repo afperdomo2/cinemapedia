@@ -18,7 +18,7 @@ class CustomAppBar extends StatelessWidget {
             // mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Icon(Icons.movie_outlined, color: colors.primary),
-              Text('Cinemapedia2', style: titleStyle),
+              Text('Cinemapedia', style: titleStyle),
               const Spacer(),
               IconButton(
                 onPressed: () {},

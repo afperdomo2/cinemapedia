@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/config/helpers/human_formatter.dart';
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class MoviesHorizontalListView extends StatefulWidget {
   final List<Movie> movies;
@@ -58,7 +59,14 @@ class _MoviesHorizontalListViewState extends State<MoviesHorizontalListView> {
               scrollDirection: Axis.horizontal,
               itemCount: widget.movies.length,
               physics: const BouncingScrollPhysics(),
-              itemBuilder: (context, index) => FadeInRight(child: _Slide(widget.movies[index])),
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  child: FadeInRight(child: _Slide(widget.movies[index])),
+                  onTap: () => {
+                    GoRouter.of(context).push('/movie/${widget.movies[index].id}'),
+                  },
+                );
+              },
             ),
           ),
         ],

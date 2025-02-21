@@ -1,4 +1,4 @@
-import 'package:cinemapedia/infraestructure/models/tmdb/movie_tmdb_response.dart';
+import 'package:cinemapedia/features/movies/data/models/tmdb/movie_tmdb_response.dart';
 
 class MovieListTMDbResponse {
   final Dates? dates;

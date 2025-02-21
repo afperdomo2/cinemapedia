@@ -1,5 +1,5 @@
-import 'package:cinemapedia/domain/entities/movie.dart';
-import 'package:cinemapedia/infraestructure/models/tmdb/movie_tmdb_response.dart';
+import 'package:cinemapedia/features/movies/data/models/tmdb/movie_tmdb_response.dart';
+import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
 
 class MovieMapper {
   static const baseImageUrl = 'https://image.tmdb.org/t/p/w500';

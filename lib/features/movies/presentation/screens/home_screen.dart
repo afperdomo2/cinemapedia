@@ -62,7 +62,6 @@ class __HomeViewState extends ConsumerState<_HomeView> {
           floating: true, // Indica si el appbar debe ser flotante.
           flexibleSpace: FlexibleSpaceBar(
             background: Container(
-              color: Colors.white,
               alignment: Alignment.center,
               child: const CustomAppBar(),
             ),

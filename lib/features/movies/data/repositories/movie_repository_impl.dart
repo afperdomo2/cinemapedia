@@ -1,4 +1,5 @@
 import 'package:cinemapedia/features/movies/domain/datasources/movie_datasource.dart';
+import 'package:cinemapedia/features/movies/domain/entities/actor.dart';
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
 import 'package:cinemapedia/features/movies/domain/repositories/movie_repository.dart';
 
@@ -30,5 +31,11 @@ class MovieRepositoryImpl extends MovieRepository {
   @override
   Future<Movie> getMovieDetails(String id) {
     return movieDataSource.getMovieDetails(id);
+  }
+
+  @override
+  Future<List<Actor>> getMovieActors(String id) {
+    // TODO: implement getMovieActors
+    throw UnimplementedError();
   }
 }

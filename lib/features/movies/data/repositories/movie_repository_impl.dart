@@ -29,13 +29,12 @@ class MovieRepositoryImpl extends MovieRepository {
   }
 
   @override
-  Future<Movie> getMovieDetails(String id) {
-    return movieDataSource.getMovieDetails(id);
+  Future<Movie> getMovieDetails(String movieId) {
+    return movieDataSource.getMovieDetails(movieId);
   }
 
   @override
-  Future<List<Actor>> getMovieActors(String id) {
-    // TODO: implement getMovieActors
-    throw UnimplementedError();
+  Future<List<Actor>> getMovieActors(String movieId) {
+    return movieDataSource.getMovieActors(movieId);
   }
 }

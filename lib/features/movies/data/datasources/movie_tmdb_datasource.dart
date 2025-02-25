@@ -1,5 +1,7 @@
 import 'package:cinemapedia/config/constants/environment.dart';
+import 'package:cinemapedia/features/movies/data/mappers/actor_mapper.dart';
 import 'package:cinemapedia/features/movies/data/mappers/movie_mapper.dart';
+import 'package:cinemapedia/features/movies/data/models/tmdb/movie_credits_tmdb_response.dart';
 import 'package:cinemapedia/features/movies/data/models/tmdb/movie_details_tmdb_response.dart';
 import 'package:cinemapedia/features/movies/data/models/tmdb/movie_list_tmdb_response.dart';
 import 'package:cinemapedia/features/movies/domain/datasources/movie_datasource.dart';
@@ -58,18 +60,22 @@ class MovieTMDbDataSource extends MovieDataSource {
   }
 
   @override
-  Future<Movie> getMovieDetails(String id) async {
-    final response = await dio.get('/movie/$id');
+  Future<Movie> getMovieDetails(String movieId) async {
+    final response = await dio.get('/movie/$movieId');
     if (response.statusCode != 200) {
-      throw Exception('Error al obtener los detalles de la película $id');
+      throw Exception('Error al obtener los detalles de la película $movieId');
     }
     final movieDetails = MovieDetailsTMDbResponse.fromJson(response.data);
     return MovieMapper.movieDetailsTMDbResponseToEntity(movieDetails);
   }
 
   @override
-  Future<List<Actor>> getMovieActors(String id) {
-    // TODO: implement getMovieActors
-    throw UnimplementedError();
+  Future<List<Actor>> getMovieActors(String movieId) async {
+    final response = await dio.get('/movie/$movieId/credits');
+    if (response.statusCode != 200) {
+      throw Exception('Error al obtener los actores de la película $movieId');
+    }
+    final castReponse = MovieCreditsTMDbResponse.fromJson(response.data);
+    return castReponse.cast.map((cast) => ActorMapper.castToEntity(cast)).toList();
   }
 }

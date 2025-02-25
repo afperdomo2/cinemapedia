@@ -1,10 +1,16 @@
+import 'package:cinemapedia/features/movies/domain/entities/actor.dart';
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
 
 class MovieDetails extends StatelessWidget {
   final Movie movie;
+  final List<Actor> actors;
 
-  const MovieDetails(this.movie, {super.key});
+  const MovieDetails({
+    super.key,
+    required this.movie,
+    required this.actors,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +65,30 @@ class MovieDetails extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 5),
                   child: Chip(
                     label: Text(gender),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+
+        /// Actores
+        const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Text('Actores', style: textStyles.titleLarge),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(10),
+          child: Wrap(
+            children: [
+              ...actors.map(
+                (actor) => Container(
+                  margin: const EdgeInsets.only(right: 5),
+                  child: Chip(
+                    label: Text(actor.name),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
                 ),
               )

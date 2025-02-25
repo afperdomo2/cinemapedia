@@ -1,4 +1,6 @@
+import 'package:cinemapedia/features/movies/domain/entities/actor.dart';
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
+import 'package:cinemapedia/features/movies/presentation/providers/actors_by_movie_provider.dart';
 import 'package:cinemapedia/features/movies/presentation/providers/movie_details_provider.dart';
 import 'package:cinemapedia/features/movies/presentation/widgets/movie_details/movie_details.dart';
 import 'package:cinemapedia/features/movies/presentation/widgets/movie_details/movie_details_appbar.dart';
@@ -21,12 +23,16 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
   void initState() {
     super.initState();
     ref.read(movieDetailsProvider.notifier).loadMovie(widget.movieId);
+    ref.read(actorByMovieProvider.notifier).loadMovieActors(widget.movieId);
   }
 
   @override
   Widget build(BuildContext context) {
     final Movie? movie = ref.watch(movieDetailsProvider)[widget.movieId];
-    final bool isLoading = ref.watch(movieDetailsProvider.notifier).isLoading;
+    final List<Actor> actors = ref.watch(actorByMovieProvider)[widget.movieId] ?? [];
+
+    final bool isLoading =
+        ref.watch(movieDetailsProvider.notifier).isLoading || ref.watch(actorByMovieProvider.notifier).isLoading;
 
     if (isLoading) {
       return const Scaffold(
@@ -42,7 +48,7 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
                 MovieDetailsAppBar(movie: movie),
                 SliverList(
                   delegate: SliverChildListDelegate([
-                    MovieDetails(movie),
+                    MovieDetails(movie: movie, actors: actors),
                   ]),
                 ),
               ],

@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/features/movies/domain/entities/actor.dart';
 import 'package:flutter/material.dart';
 
@@ -21,9 +22,11 @@ class MovieActors extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Image.network(actor.profilePath, width: 135, height: 180, fit: BoxFit.cover),
+                FadeInRight(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.network(actor.profilePath, width: 135, height: 180, fit: BoxFit.cover),
+                  ),
                 ),
                 const SizedBox(height: 5),
 

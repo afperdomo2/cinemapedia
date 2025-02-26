@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
 
@@ -25,7 +26,13 @@ class MovieDetailsAppBar extends StatelessWidget {
         background: Stack(
           children: [
             SizedBox.expand(
-              child: Image.network(movie.posterPath, fit: BoxFit.cover),
+              child: Image.network(
+                movie.posterPath,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  return (loadingProgress == null) ? FadeIn(child: child) : const SizedBox();
+                },
+              ),
             ),
             const SizedBox.expand(
               child: DecoratedBox(

@@ -32,8 +32,7 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
     final Movie? movie = ref.watch(movieDetailsProvider)[widget.movieId];
     final List<Actor> actors = ref.watch(actorByMovieProvider)[widget.movieId] ?? [];
 
-    final bool isLoading =
-        ref.watch(movieDetailsProvider.notifier).isLoading || ref.watch(actorByMovieProvider.notifier).isLoading;
+    final bool isLoading = ref.watch(movieDetailsProvider.notifier).isLoading;
 
     if (isLoading) {
       return const Scaffold(

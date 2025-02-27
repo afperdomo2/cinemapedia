@@ -78,4 +78,13 @@ class MovieTMDbDataSource extends MovieDataSource {
     final castReponse = MovieCreditsTMDbResponse.fromJson(response.data);
     return castReponse.cast.map((cast) => ActorMapper.castToEntity(cast)).toList();
   }
+
+  @override
+  Future<List<Movie>> searchMovies(String query, {int page = 1}) async {
+    final response = await dio.get('/search/movie', queryParameters: {
+      'query': query,
+      'page': page,
+    });
+    return _mapResponseToMovies(response.data);
+  }
 }

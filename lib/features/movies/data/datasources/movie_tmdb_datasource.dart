@@ -85,6 +85,7 @@ class MovieTMDbDataSource extends MovieDataSource {
       'query': query,
       'page': page,
     });
+    print('Cantidad de registros: ${response.data['results'].length}');
     return _mapResponseToMovies(response.data);
   }
 }

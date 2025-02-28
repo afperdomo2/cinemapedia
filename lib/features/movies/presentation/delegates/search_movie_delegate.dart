@@ -41,7 +41,7 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
     // NOTE: Revisar que al abrir o cerrar el teclado, se está ejecutando la búsqueda.
     return FutureBuilder(
       future: searchMovies(query),
-      initialData: const [],
+      // initialData: const [],
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           print('-----------> LOADING');
@@ -50,10 +50,12 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
 
         if (snapshot.hasError) {
           print('-----------> ERROR: ${snapshot.error}');
+          print('-----------> ERROR: ${snapshot.error.runtimeType}');
           return const Center(child: Text('Error'));
         }
 
-        final movies = snapshot.data as List<Movie>;
+        final movies = snapshot.data ?? [];
+        print('----> Cantidad de registros: ${movies.length}');
 
         return ListView.builder(
           itemCount: movies.length,
@@ -61,7 +63,7 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
             final movie = movies[index];
             return ListTile(
               title: Text(movie.title),
-              onTap: () => close(context, movie),
+              subtitle: Text(movie.originalTitle),
             );
           },
         );

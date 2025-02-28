@@ -41,18 +41,17 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
     // NOTE: Revisar que al abrir o cerrar el teclado, se está ejecutando la búsqueda.
     return FutureBuilder(
       future: searchMovies(query),
-      // initialData: const [],
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          print('-----------> LOADING');
-          return const Center(child: CircularProgressIndicator());
-        }
+        // if (snapshot.connectionState == ConnectionState.waiting) {
+        //   print('-----------> LOADING');
+        //   return const Center(child: CircularProgressIndicator());
+        // }
 
-        if (snapshot.hasError) {
-          print('-----------> ERROR: ${snapshot.error}');
-          print('-----------> ERROR: ${snapshot.error.runtimeType}');
-          return const Center(child: Text('Error'));
-        }
+        // if (snapshot.hasError) {
+        //   print('-----------> ERROR: ${snapshot.error}');
+        //   print('-----------> ERROR: ${snapshot.error.runtimeType}');
+        //   return const Center(child: Text('Error'));
+        // }
 
         final movies = snapshot.data ?? [];
         print('----> Cantidad de registros: ${movies.length}');
@@ -61,13 +60,55 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
           itemCount: movies.length,
           itemBuilder: (context, index) {
             final movie = movies[index];
-            return ListTile(
-              title: Text(movie.title),
-              subtitle: Text(movie.originalTitle),
-            );
+            return _MovieItem(movie);
           },
         );
       },
+    );
+  }
+}
+
+class _MovieItem extends StatelessWidget {
+  final Movie movie;
+
+  const _MovieItem(this.movie);
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyles = Theme.of(context).textTheme;
+    final size = MediaQuery.of(context).size;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// Image
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Image.network(
+              movie.posterPath,
+              width: size.width * 0.2,
+              height: size.width * 0.3,
+              fit: BoxFit.cover,
+            ),
+          ),
+
+          /// Title and overview
+          const SizedBox(width: 10),
+          SizedBox(
+            width: size.width * 0.7,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(movie.title, style: textStyles.titleLarge!.copyWith(fontSize: 20)),
+                const SizedBox(height: 10),
+                Text(movie.overview, maxLines: 3, overflow: TextOverflow.ellipsis),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }

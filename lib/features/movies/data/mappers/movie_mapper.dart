@@ -4,8 +4,7 @@ import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
 
 class MovieMapper {
   static const imageBasePath = 'https://image.tmdb.org/t/p/w500';
-  static const imageNotFound =
-      'https://png.pngtree.com/background/20220729/original/pngtree-glitch-style-poster-with-404-not-found-text-on-screen-with-picture-image_1867996.jpg';
+  static const imageNotFound = 'https://www.movienewz.com/img/films/poster-holder.jpg';
 
   static _getImagePath(String imagePath) {
     return imagePath != '' ? '$imageBasePath$imagePath' : imageNotFound;

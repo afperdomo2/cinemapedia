@@ -21,7 +21,6 @@ class MovieTMDbDataSource extends MovieDataSource {
   List<Movie> _mapResponseToMovies(Map<String, dynamic> responseData) {
     final List<Movie> movies = MovieListTMDbResponse.fromJson(responseData)
         .results
-        .where((movie) => movie.posterPath != 'no-poster')
         .map((movie) => MovieMapper.movieTMDbResponseToEntity(movie))
         .toList();
     return movies;

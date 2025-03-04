@@ -3,6 +3,7 @@ import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
 import 'package:cinemapedia/features/movies/presentation/widgets/vote_average.dart';
 import 'package:cinemapedia/features/movies/presentation/widgets/vote_count.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 typedef SearchMovieCallBack = Future<List<Movie>> Function(String query);
 
@@ -44,25 +45,31 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
     return FutureBuilder(
       future: searchMovies(query),
       builder: (context, snapshot) {
-        // if (snapshot.connectionState == ConnectionState.waiting) {
-        //   print('-----------> LOADING');
-        //   return const Center(child: CircularProgressIndicator());
-        // }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // print('-----------> LOADING');
+          return const Center(child: CircularProgressIndicator());
+        }
 
-        // if (snapshot.hasError) {
-        //   print('-----------> ERROR: ${snapshot.error}');
-        //   print('-----------> ERROR: ${snapshot.error.runtimeType}');
-        //   return const Center(child: Text('Error'));
-        // }
+        if (snapshot.hasError) {
+          // print('-----------> ERROR: ${snapshot.error}');
+          // print('-----------> ERROR: ${snapshot.error.runtimeType}');
+          return const Center(child: Text('Error'));
+        }
 
         final movies = snapshot.data ?? [];
-        print('----> Cantidad de registros: ${movies.length}');
+        // print('----> Cantidad de registros: ${movies.length}');
 
         return ListView.builder(
           itemCount: movies.length,
           itemBuilder: (context, index) {
             final movie = movies[index];
-            return _MovieItem(movie);
+            return GestureDetector(
+              onTap: () {
+                context.push('/movie/${movie.id}');
+                // close(context, movie);
+              },
+              child: _MovieItem(movie),
+            );
           },
         );
       },

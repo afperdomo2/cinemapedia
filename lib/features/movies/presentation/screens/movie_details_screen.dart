@@ -99,7 +99,7 @@ class _MovieResume extends StatelessWidget {
 
                 /// Resumen
                 const SizedBox(height: 10),
-                Text(movie.overview),
+                Text(movie.overview != '' ? movie.overview : 'No se encontró una descripción'),
               ],
             ),
           ),

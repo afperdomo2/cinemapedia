@@ -1,6 +1,7 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:cinemapedia/config/helpers/human_formatter.dart';
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
+import 'package:cinemapedia/features/movies/presentation/widgets/vote_average.dart';
+import 'package:cinemapedia/features/movies/presentation/widgets/vote_count.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -43,7 +44,8 @@ class _MoviesHorizontalListViewState extends State<MoviesHorizontalListView> {
   @override
   void dispose() {
     super.dispose(); // Libera los recursos utilizados por el widget.
-    scrollController.dispose(); // Libera los recursos utilizados por el controlador de desplazamiento.
+    scrollController
+        .dispose(); // Libera los recursos utilizados por el controlador de desplazamiento.
   }
 
   @override
@@ -52,7 +54,8 @@ class _MoviesHorizontalListViewState extends State<MoviesHorizontalListView> {
       height: 350,
       child: Column(
         children: [
-          if (widget.title != null || widget.subtitle != null) _Title(widget.title, widget.subtitle),
+          if (widget.title != null || widget.subtitle != null)
+            _Title(widget.title, widget.subtitle),
           Expanded(
             child: ListView.builder(
               controller: scrollController,
@@ -118,19 +121,9 @@ class _Slide extends StatelessWidget {
             width: imageWidth,
             child: Row(
               children: [
-                const Icon(Icons.star, size: 20, color: Colors.amber),
-                const SizedBox(width: 2),
-                Text(
-                  movie.voteAverage.toStringAsFixed(1),
-                  style: textStyles.bodyMedium?.copyWith(color: Colors.yellow[800], fontWeight: FontWeight.bold),
-                ),
+                VoteAverage(movie.voteAverage),
                 const Spacer(),
-                const Icon(Icons.people, size: 14, color: Colors.grey),
-                const SizedBox(width: 3),
-                Text(
-                  HumanFormatter.largeNumber(movie.voteCount.toDouble()),
-                  style: textStyles.bodySmall?.copyWith(color: Colors.grey),
-                ),
+                VoteCount(movie.voteCount),
                 const SizedBox(width: 2),
               ],
             ),

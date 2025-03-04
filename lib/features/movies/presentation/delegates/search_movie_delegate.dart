@@ -1,5 +1,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
+import 'package:cinemapedia/features/movies/presentation/widgets/vote_average.dart';
+import 'package:cinemapedia/features/movies/presentation/widgets/vote_count.dart';
 import 'package:flutter/material.dart';
 
 typedef SearchMovieCallBack = Future<List<Movie>> Function(String query);
@@ -102,8 +104,22 @@ class _MovieItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(movie.title, style: textStyles.titleLarge!.copyWith(fontSize: 20)),
-                const SizedBox(height: 10),
-                Text(movie.overview, maxLines: 3, overflow: TextOverflow.ellipsis),
+                const SizedBox(height: 5),
+                Text(movie.overview, maxLines: 2, overflow: TextOverflow.ellipsis),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Text(movie.releaseDate?.year.toString() ?? '', style: textStyles.titleSmall),
+                    const SizedBox(width: 7),
+                    const Icon(Icons.circle, size: 4, color: Colors.grey),
+                    const SizedBox(width: 7),
+                    VoteAverage(movie.voteAverage),
+                    const SizedBox(width: 7),
+                    const Icon(Icons.circle, size: 4, color: Colors.grey),
+                    const SizedBox(width: 7),
+                    VoteCount(movie.voteCount),
+                  ],
+                )
               ],
             ),
           )

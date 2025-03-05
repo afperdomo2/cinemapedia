@@ -1,6 +1,7 @@
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
 import 'package:cinemapedia/features/movies/presentation/delegates/search_movie_delegate.dart';
 import 'package:cinemapedia/features/movies/presentation/providers/movie_repository_provider.dart';
+import 'package:cinemapedia/features/movies/presentation/providers/search/search_movie_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +16,7 @@ class CustomAppBar extends ConsumerWidget {
     final titleStyle = theme.textTheme.titleMedium;
 
     final searchMovies = ref.read(movieRepositoryProvider).searchMovies;
+    final searchQuery = ref.watch(searchQueryProvider);
 
     return SafeArea(
       child: Padding(
@@ -30,8 +32,15 @@ class CustomAppBar extends ConsumerWidget {
               IconButton(
                 onPressed: () {
                   showSearch<Movie?>(
+                    query: searchQuery,
                     context: context,
-                    delegate: SearchMovieDelegate(searchMovies: searchMovies),
+                    delegate: SearchMovieDelegate(
+                      searchMovies: (query) {
+                        print("actualiar query $query");
+                        ref.read(searchQueryProvider.notifier).update((state) => query);
+                        return searchMovies(query);
+                      },
+                    ),
                   ).then((movie) {
                     if (movie != null) {
                       context.push('/movie/${movie.id}');

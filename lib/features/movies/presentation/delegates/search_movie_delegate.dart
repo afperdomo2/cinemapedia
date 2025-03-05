@@ -1,16 +1,36 @@
+import 'dart:async';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
 import 'package:cinemapedia/features/movies/presentation/widgets/vote_average.dart';
 import 'package:cinemapedia/features/movies/presentation/widgets/vote_count.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 typedef SearchMovieCallBack = Future<List<Movie>> Function(String query);
 
 class SearchMovieDelegate extends SearchDelegate<Movie?> {
   final SearchMovieCallBack searchMovies;
+  StreamController<List<Movie>> debounceMovies = StreamController.broadcast();
+  Timer? _debounceTimer;
 
   SearchMovieDelegate({required this.searchMovies});
+
+  void _onQueryChanged(String query) {
+    debounceMovies.add([]);
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
+      if (query.isEmpty) {
+        debounceMovies.add([]);
+        return;
+      }
+      final movies = await searchMovies(query);
+      debounceMovies.add(movies);
+    });
+  }
+
+  void resetMovieStreams() {
+    debounceMovies.close();
+  }
 
   @override
   String get searchFieldLabel => 'Buscar películas';
@@ -30,7 +50,13 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   /// Este método se encarga de construir el widget que se muestra en la parte izquierda del appbar.
   @override
   Widget? buildLeading(BuildContext context) {
-    return IconButton(onPressed: () => close(context, null), icon: const Icon(Icons.arrow_back));
+    return IconButton(
+      onPressed: () {
+        resetMovieStreams();
+        close(context, null);
+      },
+      icon: const Icon(Icons.arrow_back),
+    );
   }
 
   @override
@@ -41,23 +67,17 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   /// Este método se encarga de construir el widget que se muestra cuando no hay sugerencias.
   @override
   Widget buildSuggestions(BuildContext context) {
-    // NOTE: Revisar que al abrir o cerrar el teclado, se está ejecutando la búsqueda.
-    return FutureBuilder(
-      future: searchMovies(query),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          // print('-----------> LOADING');
-          return const Center(child: CircularProgressIndicator());
-        }
+    _onQueryChanged(query);
 
-        if (snapshot.hasError) {
-          // print('-----------> ERROR: ${snapshot.error}');
-          // print('-----------> ERROR: ${snapshot.error.runtimeType}');
-          return const Center(child: Text('Error'));
-        }
+    // NOTE: Revisar que al abrir o cerrar el teclado, se está ejecutando la búsqueda.
+    return StreamBuilder(
+      stream: debounceMovies.stream,
+      builder: (context, snapshot) {
+        // if (snapshot.connectionState == ConnectionState.waiting) {
+        //   return const Center(child: CircularProgressIndicator());
+        // }
 
         final movies = snapshot.data ?? [];
-        // print('----> Cantidad de registros: ${movies.length}');
 
         return ListView.builder(
           itemCount: movies.length,
@@ -65,8 +85,9 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
             final movie = movies[index];
             return GestureDetector(
               onTap: () {
-                context.push('/movie/${movie.id}');
-                // close(context, movie);
+                resetMovieStreams();
+                close(context, movie);
+                // context.push('/movie/${movie.id}');
               },
               child: _MovieItem(movie),
             );

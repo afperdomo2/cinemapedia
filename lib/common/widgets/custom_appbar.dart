@@ -33,9 +33,9 @@ class CustomAppBar extends ConsumerWidget {
                     context: context,
                     delegate: SearchMovieDelegate(searchMovies: searchMovies),
                   ).then((movie) {
-                    // if (movie != null) {
-                    //   context.push('/movie/${movie.id}');
-                    // }
+                    if (movie != null) {
+                      context.push('/movie/${movie.id}');
+                    }
                   });
                 },
                 icon: const Icon(Icons.search),

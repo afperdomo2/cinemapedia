@@ -34,17 +34,13 @@ class CustomAppBar extends ConsumerWidget {
                   showSearch<Movie?>(
                     query: searchQuery,
                     context: context,
-                    delegate: SearchMovieDelegate(
-                      searchMovies: (query) {
-                        print("actualiar query $query");
-                        ref.read(searchQueryProvider.notifier).update((state) => query);
-                        return searchMovies(query);
-                      },
-                    ),
+                    delegate: SearchMovieDelegate(searchMovies: searchMovies, ref: ref),
                   ).then((movie) {
-                    if (movie != null) {
-                      context.push('/movie/${movie.id}');
-                    }
+                    /// No se usa porque dentro del delegate se abre la pantalla de detalles
+                    /// No se está cerrando la búsqueda con el close(context, movie)
+                    // if (movie != null) {
+                    //   context.push('/movie/${movie.id}');
+                    // }
                   });
                 },
                 icon: const Icon(Icons.search),

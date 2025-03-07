@@ -2,43 +2,72 @@ import 'dart:async';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
+import 'package:cinemapedia/features/movies/presentation/providers/search/search_movie_provider.dart';
 import 'package:cinemapedia/features/movies/presentation/widgets/vote_average.dart';
 import 'package:cinemapedia/features/movies/presentation/widgets/vote_count.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 typedef SearchMovieCallBack = Future<List<Movie>> Function(String query);
 
 class SearchMovieDelegate extends SearchDelegate<Movie?> {
   final SearchMovieCallBack searchMovies;
+  final WidgetRef ref;
+
   StreamController<List<Movie>> debounceMovies = StreamController.broadcast();
-  Timer? _debounceTimer;
+  Timer? debounceTimer;
+  bool handleSearchQuerySync = true;
+  bool isSearching = false;
 
-  SearchMovieDelegate({required this.searchMovies});
-
-  void _onQueryChanged(String query) {
-    debounceMovies.add([]);
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
-      if (query.isEmpty) {
-        debounceMovies.add([]);
-        return;
-      }
-      final movies = await searchMovies(query);
-      debounceMovies.add(movies);
-    });
-  }
-
-  void resetMovieStreams() {
-    debounceMovies.close();
-  }
+  SearchMovieDelegate({
+    required this.searchMovies,
+    required this.ref,
+  });
 
   @override
   String get searchFieldLabel => 'Buscar películas';
 
-  /// Este método se encarga de construir el widget que se muestra en la parte derecha del appbar.
+  void _onQueryChanged(String query) {
+    /// Evitar que se actualice el provider de búsqueda
+    if (handleSearchQuerySync) {
+      handleSearchQuerySync = false;
+
+      /// Actualizar el provider de búsqueda
+      Future.microtask(() {
+        ref.read(searchQueryProvider.notifier).update((state) => query);
+        handleSearchQuerySync = true;
+      });
+    }
+
+    debounceMovies.add([]);
+    debounceTimer?.cancel();
+    isSearching = true;
+    debounceTimer = Timer(const Duration(milliseconds: 500), () async {
+      if (query.isEmpty) {
+        debounceMovies.add([]);
+        isSearching = false;
+        return;
+      }
+      final movies = await searchMovies(query);
+      isSearching = false;
+      if (!debounceMovies.isClosed) {
+        debounceMovies.add(movies);
+      }
+    });
+  }
+
+  void resetMovieStreams() {
+    if (!debounceMovies.isClosed) {
+      debounceMovies.close();
+    }
+  }
+
+  /// Botones de acción
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
+      /// Botón de limpiar búsqueda
       FadeIn(
         animate: query.isNotEmpty,
         duration: const Duration(milliseconds: 200),
@@ -47,7 +76,7 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
     ];
   }
 
-  /// Este método se encarga de construir el widget que se muestra en la parte izquierda del appbar.
+  /// Botón de regreso
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
@@ -59,25 +88,29 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
     );
   }
 
+  /// Resultados de la búsqueda
   @override
   Widget buildResults(BuildContext context) {
-    return const Text('buildResults');
+    return buildSuggestions(context);
   }
 
-  /// Este método se encarga de construir el widget que se muestra cuando no hay sugerencias.
+  /// Sugerencias de búsqueda
   @override
   Widget buildSuggestions(BuildContext context) {
     _onQueryChanged(query);
 
-    // NOTE: Revisar que al abrir o cerrar el teclado, se está ejecutando la búsqueda.
     return StreamBuilder(
       stream: debounceMovies.stream,
       builder: (context, snapshot) {
-        // if (snapshot.connectionState == ConnectionState.waiting) {
-        //   return const Center(child: CircularProgressIndicator());
-        // }
-
         final movies = snapshot.data ?? [];
+
+        if (isSearching) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (movies.isEmpty) {
+          return (query.isEmpty) ? const _SearchInputEmpty() : _MoviesNotFound(query: query);
+        }
 
         return ListView.builder(
           itemCount: movies.length,
@@ -85,9 +118,13 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
             final movie = movies[index];
             return GestureDetector(
               onTap: () {
-                resetMovieStreams();
-                close(context, movie);
-                // context.push('/movie/${movie.id}');
+                // Actualizar el provider al seleccionar una película
+                Future.microtask(() {
+                  ref.read(searchQueryProvider.notifier).update((state) => movie.title);
+                });
+                // resetMovieStreams(); // No se requiere cerrar la búsqueda
+                // close(context, movie); // No se requiere cerrar la búsqueda
+                context.push('/movie/${movie.id}');
               },
               child: _MovieItem(movie),
             );
@@ -144,13 +181,45 @@ class _MovieItem extends StatelessWidget {
                     VoteAverage(movie.voteAverage),
                     const SizedBox(width: 7),
                     const Icon(Icons.circle, size: 4, color: Colors.grey),
-                    const SizedBox(width: 7),
                     VoteCount(movie.voteCount),
                   ],
                 )
               ],
             ),
           )
+        ],
+      ),
+    );
+  }
+}
+
+class _SearchInputEmpty extends StatelessWidget {
+  const _SearchInputEmpty();
+
+  @override
+  Widget build(BuildContext context) {
+    const message = 'Ingresa el nombre de una película para buscarla';
+    return Center(
+      child: Text(message, style: Theme.of(context).textTheme.labelLarge),
+    );
+  }
+}
+
+class _MoviesNotFound extends StatelessWidget {
+  const _MoviesNotFound({required this.query});
+
+  final String query;
+
+  @override
+  Widget build(BuildContext context) {
+    final message = "No se encontraron películas con el nombre: '$query'";
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.movie_creation_outlined, size: 60, color: Theme.of(context).primaryColorLight),
+          Text(message, style: Theme.of(context).textTheme.labelLarge),
         ],
       ),
     );

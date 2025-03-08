@@ -2,7 +2,17 @@ import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
 import 'package:cinemapedia/features/movies/presentation/providers/movie_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final movieDetailsProvider = StateNotifierProvider<MovieDetailsMapNotifier, Map<String, Movie>>((ref) {
+/// StateNotifierProvider
+///
+/// Propósito: StateNotifierProvider se utiliza para gestionar estados
+/// complejos que requieren lógica de negocio. Utiliza un StateNotifier
+/// para manejar el estado.
+///
+/// Uso: Proporciona un estado que puede ser leído y actualizado a través
+/// de métodos definidos en el StateNotifier.
+///
+final movieDetailsProvider =
+    StateNotifierProvider<MovieDetailsMapNotifier, Map<String, Movie>>((ref) {
   final fetchMovieDetails = ref.watch(movieRepositoryProvider).getMovieDetails;
   return MovieDetailsMapNotifier(fetchMovieDetails: fetchMovieDetails);
 });

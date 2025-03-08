@@ -1,10 +1,8 @@
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
 import 'package:cinemapedia/features/movies/presentation/delegates/search_movie_delegate.dart';
-import 'package:cinemapedia/features/movies/presentation/providers/movie_repository_provider.dart';
 import 'package:cinemapedia/features/movies/presentation/providers/search/search_movie_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class CustomAppBar extends ConsumerWidget {
   const CustomAppBar({super.key});
@@ -15,8 +13,8 @@ class CustomAppBar extends ConsumerWidget {
     final colors = theme.colorScheme;
     final titleStyle = theme.textTheme.titleMedium;
 
-    final searchMovies = ref.read(movieRepositoryProvider).searchMovies;
     final searchQuery = ref.watch(searchQueryProvider);
+    final searchMoviesByQuery = ref.read(searchedMoviesProvider.notifier).searchMoviesByQuery;
 
     return SafeArea(
       child: Padding(
@@ -34,7 +32,9 @@ class CustomAppBar extends ConsumerWidget {
                   showSearch<Movie?>(
                     query: searchQuery,
                     context: context,
-                    delegate: SearchMovieDelegate(searchMovies: searchMovies, ref: ref),
+                    delegate: SearchMovieDelegate(
+                      searchMovies: searchMoviesByQuery,
+                    ),
                   ).then((movie) {
                     /// Esta línea se usa direccionar cuando se cierra la búsqueda
                     // if (movie != null) {

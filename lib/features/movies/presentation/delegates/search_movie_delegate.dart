@@ -2,18 +2,16 @@ import 'dart:async';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
-import 'package:cinemapedia/features/movies/presentation/providers/search/search_movie_provider.dart';
 import 'package:cinemapedia/features/movies/presentation/widgets/vote_average.dart';
 import 'package:cinemapedia/features/movies/presentation/widgets/vote_count.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 typedef SearchMovieCallBack = Future<List<Movie>> Function(String query);
 
 class SearchMovieDelegate extends SearchDelegate<Movie?> {
   final SearchMovieCallBack searchMovies;
-  final WidgetRef ref;
+  // final List<Movie> initialMovies;
 
   StreamController<List<Movie>> debounceMovies = StreamController.broadcast();
   Timer? debounceTimer;
@@ -21,34 +19,29 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
 
   SearchMovieDelegate({
     required this.searchMovies,
-    required this.ref,
+    // required this.initialMovies,
   });
 
   @override
   String get searchFieldLabel => 'Buscar películas';
 
   void _onQueryChanged(String query) {
-    debounceMovies.add([]);
-    debounceTimer?.cancel();
+    if (debounceTimer?.isActive ?? false) {
+      debounceTimer?.cancel();
+    }
     isSearching = true;
     debounceTimer = Timer(const Duration(milliseconds: 500), () async {
-      if (query.isEmpty) {
-        debounceMovies.add([]);
-        isSearching = false;
-        return;
-      }
       final movies = await searchMovies(query);
+      query.isEmpty ? debounceMovies.add([]) : debounceMovies.add(movies);
       isSearching = false;
-      if (!debounceMovies.isClosed) {
-        debounceMovies.add(movies);
-      }
     });
   }
 
   void resetMovieStreams() {
-    if (!debounceMovies.isClosed) {
-      debounceMovies.close();
-    }
+    // if (!debounceMovies.isClosed) {
+    //   debounceMovies.close();
+    // }
+    debounceMovies.close();
   }
 
   /// Botones de acción
@@ -70,9 +63,6 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
     return IconButton(
       onPressed: () {
         resetMovieStreams();
-        Future.microtask(() {
-          ref.read(searchQueryProvider.notifier).update((state) => query);
-        });
         close(context, null);
       },
       icon: const Icon(Icons.arrow_back),
@@ -92,6 +82,7 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
 
     return StreamBuilder(
       stream: debounceMovies.stream,
+      // initialData: initialMovies,
       builder: (context, snapshot) {
         final movies = snapshot.data ?? [];
 
@@ -110,9 +101,9 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
             return GestureDetector(
               onTap: () {
                 // Actualizar el provider al seleccionar una película
-                Future.microtask(() {
-                  ref.read(searchQueryProvider.notifier).update((state) => movie.title);
-                });
+                // Future.microtask(() {
+                //   ref.read(searchQueryProvider.notifier).update((state) => movie.title);
+                // });
                 // resetMovieStreams(); // No se requiere cerrar la búsqueda
                 // close(context, movie); // No se requiere cerrar la búsqueda
                 context.push('/movie/${movie.id}');

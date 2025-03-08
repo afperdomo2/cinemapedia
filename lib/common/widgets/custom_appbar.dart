@@ -36,8 +36,7 @@ class CustomAppBar extends ConsumerWidget {
                     context: context,
                     delegate: SearchMovieDelegate(searchMovies: searchMovies, ref: ref),
                   ).then((movie) {
-                    /// No se usa porque dentro del delegate se abre la pantalla de detalles
-                    /// No se está cerrando la búsqueda con el close(context, movie)
+                    /// Esta línea se usa direccionar cuando se cierra la búsqueda
                     // if (movie != null) {
                     //   context.push('/movie/${movie.id}');
                     // }

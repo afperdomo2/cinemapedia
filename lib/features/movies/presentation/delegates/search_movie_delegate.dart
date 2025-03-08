@@ -17,7 +17,6 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
 
   StreamController<List<Movie>> debounceMovies = StreamController.broadcast();
   Timer? debounceTimer;
-  bool handleSearchQuerySync = true;
   bool isSearching = false;
 
   SearchMovieDelegate({
@@ -29,17 +28,6 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   String get searchFieldLabel => 'Buscar películas';
 
   void _onQueryChanged(String query) {
-    /// Evitar que se actualice el provider de búsqueda
-    if (handleSearchQuerySync) {
-      handleSearchQuerySync = false;
-
-      /// Actualizar el provider de búsqueda
-      Future.microtask(() {
-        ref.read(searchQueryProvider.notifier).update((state) => query);
-        handleSearchQuerySync = true;
-      });
-    }
-
     debounceMovies.add([]);
     debounceTimer?.cancel();
     isSearching = true;
@@ -82,6 +70,9 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
     return IconButton(
       onPressed: () {
         resetMovieStreams();
+        Future.microtask(() {
+          ref.read(searchQueryProvider.notifier).update((state) => query);
+        });
         close(context, null);
       },
       icon: const Icon(Icons.arrow_back),

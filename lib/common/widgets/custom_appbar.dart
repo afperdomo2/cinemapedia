@@ -15,6 +15,7 @@ class CustomAppBar extends ConsumerWidget {
 
     final searchQuery = ref.watch(searchQueryProvider);
     final searchMoviesByQuery = ref.read(searchedMoviesProvider.notifier).searchMoviesByQuery;
+    final searchedMovies = ref.watch(searchedMoviesProvider);
 
     return SafeArea(
       child: Padding(
@@ -34,6 +35,7 @@ class CustomAppBar extends ConsumerWidget {
                     context: context,
                     delegate: SearchMovieDelegate(
                       searchMovies: searchMoviesByQuery,
+                      initialMovies: searchedMovies,
                     ),
                   ).then((movie) {
                     /// Esta línea se usa direccionar cuando se cierra la búsqueda

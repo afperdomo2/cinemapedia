@@ -11,7 +11,7 @@ typedef SearchMovieCallBack = Future<List<Movie>> Function(String query);
 
 class SearchMovieDelegate extends SearchDelegate<Movie?> {
   final SearchMovieCallBack searchMovies;
-  // final List<Movie> initialMovies;
+  List<Movie> initialMovies;
 
   StreamController<List<Movie>> debounceMovies = StreamController.broadcast();
   Timer? debounceTimer;
@@ -19,7 +19,7 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
 
   SearchMovieDelegate({
     required this.searchMovies,
-    // required this.initialMovies,
+    required this.initialMovies,
   });
 
   @override
@@ -32,6 +32,7 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
     isSearching = true;
     debounceTimer = Timer(const Duration(milliseconds: 500), () async {
       final movies = await searchMovies(query);
+      initialMovies = movies;
       query.isEmpty ? debounceMovies.add([]) : debounceMovies.add(movies);
       isSearching = false;
     });
@@ -72,28 +73,28 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   /// Resultados de la búsqueda
   @override
   Widget buildResults(BuildContext context) {
-    return buildSuggestions(context);
+    return buildResultsAndSuggestions();
   }
 
   /// Sugerencias de búsqueda
   @override
   Widget buildSuggestions(BuildContext context) {
     _onQueryChanged(query);
+    return buildResultsAndSuggestions();
+  }
 
+  StreamBuilder<List<Movie>> buildResultsAndSuggestions() {
     return StreamBuilder(
       stream: debounceMovies.stream,
-      // initialData: initialMovies,
+      initialData: initialMovies,
       builder: (context, snapshot) {
         final movies = snapshot.data ?? [];
-
-        if (isSearching) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (movies.isEmpty) {
-          return (query.isEmpty) ? const _SearchInputEmpty() : _MoviesNotFound(query: query);
-        }
-
+        // if (isSearching) {
+        //   return const Center(child: CircularProgressIndicator());
+        // }
+        // if (movies.isEmpty) {
+        //   return (query.isEmpty) ? const _SearchInputEmpty() : _MoviesNotFound(query: query);
+        // }
         return ListView.builder(
           itemCount: movies.length,
           itemBuilder: (context, index) {

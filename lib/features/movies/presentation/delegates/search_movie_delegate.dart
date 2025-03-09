@@ -14,8 +14,9 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   List<Movie> initialMovies;
 
   StreamController<List<Movie>> debounceMovies = StreamController.broadcast();
+  StreamController<bool> isLoadingStream = StreamController.broadcast();
+
   Timer? debounceTimer;
-  bool isSearching = false;
 
   SearchMovieDelegate({
     required this.searchMovies,
@@ -26,22 +27,19 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   String get searchFieldLabel => 'Buscar películas';
 
   void _onQueryChanged(String query) {
+    isLoadingStream.add(true);
     if (debounceTimer?.isActive ?? false) {
       debounceTimer?.cancel();
     }
-    isSearching = true;
     debounceTimer = Timer(const Duration(milliseconds: 500), () async {
       final movies = await searchMovies(query);
       initialMovies = movies;
       query.isEmpty ? debounceMovies.add([]) : debounceMovies.add(movies);
-      isSearching = false;
+      isLoadingStream.add(false);
     });
   }
 
   void resetMovieStreams() {
-    // if (!debounceMovies.isClosed) {
-    //   debounceMovies.close();
-    // }
     debounceMovies.close();
   }
 
@@ -49,11 +47,26 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
-      /// Botón de limpiar búsqueda
-      FadeIn(
-        animate: query.isNotEmpty,
-        duration: const Duration(milliseconds: 200),
-        child: IconButton(onPressed: () => query = '', icon: const Icon(Icons.clear)),
+      StreamBuilder(
+        stream: isLoadingStream.stream,
+        builder: (context, snapshot) {
+          if (snapshot.data == true) {
+            /// Indicador de carga
+            return Container(
+              margin: const EdgeInsets.only(right: 15),
+              width: 20,
+              height: 20,
+              child: const CircularProgressIndicator(strokeWidth: 2),
+            );
+          }
+
+          /// Botón para limpiar la búsqueda
+          return FadeIn(
+            animate: query.isNotEmpty,
+            duration: const Duration(milliseconds: 200),
+            child: IconButton(onPressed: () => query = '', icon: const Icon(Icons.clear)),
+          );
+        },
       ),
     ];
   }
@@ -89,12 +102,9 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
       initialData: initialMovies,
       builder: (context, snapshot) {
         final movies = snapshot.data ?? [];
-        // if (isSearching) {
-        //   return const Center(child: CircularProgressIndicator());
-        // }
-        // if (movies.isEmpty) {
-        //   return (query.isEmpty) ? const _SearchInputEmpty() : _MoviesNotFound(query: query);
-        // }
+        if (query.isEmpty) {
+          return const _SearchInputEmpty();
+        }
         return ListView.builder(
           itemCount: movies.length,
           itemBuilder: (context, index) {
@@ -184,27 +194,6 @@ class _SearchInputEmpty extends StatelessWidget {
     const message = 'Ingresa el nombre de una película para buscarla';
     return Center(
       child: Text(message, style: Theme.of(context).textTheme.labelLarge),
-    );
-  }
-}
-
-class _MoviesNotFound extends StatelessWidget {
-  const _MoviesNotFound({required this.query});
-
-  final String query;
-
-  @override
-  Widget build(BuildContext context) {
-    final message = "No se encontraron películas con el nombre: '$query'";
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.movie_creation_outlined, size: 60, color: Theme.of(context).primaryColorLight),
-          Text(message, style: Theme.of(context).textTheme.labelLarge),
-        ],
-      ),
     );
   }
 }

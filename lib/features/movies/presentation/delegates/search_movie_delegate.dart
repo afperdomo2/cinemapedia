@@ -29,18 +29,23 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   void _onQueryChanged(String query) {
     isLoadingStream.add(true);
     if (debounceTimer?.isActive ?? false) {
-      debounceTimer?.cancel();
+      debounceTimer!.cancel();
     }
     debounceTimer = Timer(const Duration(milliseconds: 500), () async {
       final movies = await searchMovies(query);
       initialMovies = movies;
-      query.isEmpty ? debounceMovies.add([]) : debounceMovies.add(movies);
+      debounceMovies.add(movies);
       isLoadingStream.add(false);
     });
   }
 
   void resetMovieStreams() {
-    debounceMovies.close();
+    if (!debounceMovies.isClosed) {
+      debounceMovies.close();
+    }
+    if (!isLoadingStream.isClosed) {
+      isLoadingStream.close();
+    }
   }
 
   /// Botones de acción

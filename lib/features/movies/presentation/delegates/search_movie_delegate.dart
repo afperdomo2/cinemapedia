@@ -13,37 +13,52 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   final SearchMovieCallBack searchMovies;
   List<Movie> initialMovies;
 
-  StreamController<List<Movie>> debounceMovies = StreamController.broadcast();
-  StreamController<bool> isLoadingStream = StreamController.broadcast();
+  late StreamController<List<Movie>> debounceMovies;
+  late StreamController<bool> isLoadingStream;
 
-  Timer? debounceTimer;
+  bool _isDebounceMoviesClosed = false;
+  bool _isLoadingStreamClosed = false;
+  Timer? _debounceTimer;
 
   SearchMovieDelegate({
     required this.searchMovies,
     required this.initialMovies,
-  });
+  }) {
+    debounceMovies = StreamController<List<Movie>>.broadcast();
+    isLoadingStream = StreamController<bool>.broadcast();
+  }
 
   @override
   String get searchFieldLabel => 'Buscar películas';
 
   void _onQueryChanged(String query) {
+    if (_isLoadingStreamClosed) return;
+
     isLoadingStream.add(true);
-    if (debounceTimer?.isActive ?? false) {
-      debounceTimer!.cancel();
+
+    if (_debounceTimer?.isActive ?? false) {
+      _debounceTimer!.cancel();
     }
-    debounceTimer = Timer(const Duration(milliseconds: 500), () async {
+
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
+      if (_isDebounceMoviesClosed) return;
+
       final movies = await searchMovies(query);
       initialMovies = movies;
-      debounceMovies.add(movies);
-      isLoadingStream.add(false);
+
+      if (!_isDebounceMoviesClosed) debounceMovies.add(movies);
+      if (!_isLoadingStreamClosed) isLoadingStream.add(false);
     });
   }
 
   void resetMovieStreams() {
-    if (!debounceMovies.isClosed) {
+    _debounceTimer?.cancel();
+    if (!_isDebounceMoviesClosed) {
+      _isDebounceMoviesClosed = true;
       debounceMovies.close();
     }
-    if (!isLoadingStream.isClosed) {
+    if (!_isLoadingStreamClosed) {
+      _isLoadingStreamClosed = true;
       isLoadingStream.close();
     }
   }
@@ -54,6 +69,7 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
     return [
       StreamBuilder(
         stream: isLoadingStream.stream,
+        initialData: false,
         builder: (context, snapshot) {
           if (snapshot.data == true) {
             /// Indicador de carga
@@ -88,6 +104,14 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
     );
   }
 
+  /// Cerrar streams al cerrar la búsqueda de películas para evitar fugas de memoria
+  /// y errores de ejecución en la aplicación al intentar acceder a un stream cerrado.
+  @override
+  void close(BuildContext context, Movie? result) {
+    resetMovieStreams(); // Cierra los streams
+    super.close(context, result); // Cierra la búsqueda
+  }
+
   /// Resultados de la búsqueda
   @override
   Widget buildResults(BuildContext context) {
@@ -116,12 +140,6 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
             final movie = movies[index];
             return GestureDetector(
               onTap: () {
-                // Actualizar el provider al seleccionar una película
-                // Future.microtask(() {
-                //   ref.read(searchQueryProvider.notifier).update((state) => movie.title);
-                // });
-                // resetMovieStreams(); // No se requiere cerrar la búsqueda
-                // close(context, movie); // No se requiere cerrar la búsqueda
                 context.push('/movie/${movie.id}');
               },
               child: _MovieItem(movie),

@@ -1,5 +1,4 @@
 import 'package:cinemapedia/common/widgets/custom_appbar.dart';
-import 'package:cinemapedia/common/widgets/custom_bottom_navigation.dart';
 import 'package:cinemapedia/common/widgets/full_screen_loader.dart';
 import 'package:cinemapedia/config/helpers/human_formatter.dart';
 import 'package:cinemapedia/features/movies/presentation/providers/is_movies_loading_provider.dart';
@@ -19,7 +18,6 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: _HomeView(),
-      bottomNavigationBar: CustomBottomNavigation(),
     );
   }
 }

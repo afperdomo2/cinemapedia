@@ -35,7 +35,25 @@ En el archivo `.env`, tomar como base el archivo de `example.env`, para crear la
 
 ---
 
-## 📀3. API - The Movie DB
+## 💾3. Isar Database
+
+Base de datos con Isar (NoSQL)
+
+<https://isar.dev/es/>
+
+<https://isar.dev/es/tutorials/quickstart.html>
+
+```sh
+# Ejecutar el generador de código
+
+# Con Flutter
+flutter pub run build_runner build
+
+# Con Dart
+dart run build_runner build
+```
+
+## 📀4. API - The Movie DB
 
 - Iniciar sesión en la página
 - Ir al menú de **ajustes**
@@ -51,9 +69,9 @@ Endpoints: <https://developer.themoviedb.org/reference/authentication-how-do-i-g
 
 ---
 
-## ⛑️4. Ayuda
+## ⛑️5. Ayuda
 
-### 🗺️4.1 Guías
+### 🗺️5.1 Guías
 
 **Comillas simples en vez de dobles:**
 
@@ -77,7 +95,7 @@ dart fix --apply
 
 ---
 
-### ⌨️4.2 Comandos
+### ⌨️5.2 Comandos
 
 ```sh
 # Instalar los paquetes o dependencias

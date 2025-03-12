@@ -8,8 +8,8 @@ class LocalStorageRepositoryImpl extends LocalStorageRepository {
   LocalStorageRepositoryImpl(this.dataSource);
 
   @override
-  Future<List<Movie>> getFavoriteMovies({int page = 1}) {
-    return dataSource.getFavoriteMovies(page: page);
+  Future<List<Movie>> getFavoriteMovies({int page = 1, int limit = 20}) {
+    return dataSource.getFavoriteMovies(page: page, limit: limit);
   }
 
   @override

@@ -1,14 +1,31 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
+import 'package:cinemapedia/features/movies/presentation/providers/local_storage_repository_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MovieDetailsAppBar extends StatelessWidget {
+///
+/// Provider para saber si una película es favorita
+///
+/// FutureProvider: Proveedor de un valor futuro
+/// autoDispose: Se elimina automáticamente cuando no se usa
+/// family: Proveedor de una familia de valores
+///
+final isFavoriteMovieProvider = FutureProvider.autoDispose.family<bool, int>((ref, movieId) {
+  final localStorageProvider = ref.watch(localStorageRepositoryProvider);
+  return localStorageProvider.isFavoriteMovie(movieId);
+});
+
+class MovieDetailsAppBar extends ConsumerWidget {
   final Movie movie;
 
   const MovieDetailsAppBar({super.key, required this.movie});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final localStorageRepository = ref.watch(localStorageRepositoryProvider);
+    final isFavoriteMovie = ref.watch(isFavoriteMovieProvider(movie.id));
+
     final size = MediaQuery.of(context).size;
 
     return SliverAppBar(
@@ -17,13 +34,20 @@ class MovieDetailsAppBar extends StatelessWidget {
       foregroundColor: Colors.white,
       actions: [
         IconButton(
-          icon: const Icon(Icons.favorite_outline),
-          onPressed: () {},
+          onPressed: () async {
+            await localStorageRepository.toggleFavoriteMovie(movie);
+
+            /// Invalidar el provider para que se vuelva a cargar
+            ref.invalidate(isFavoriteMovieProvider(movie.id));
+          },
+          icon: isFavoriteMovie.when(
+            data: (isFavorite) => isFavorite
+                ? const Icon(Icons.favorite, color: Colors.red)
+                : const Icon(Icons.favorite_outline),
+            loading: () => const CircularProgressIndicator(strokeWidth: 2),
+            error: (error, _) => const Icon(Icons.favorite_outline),
+          ),
         ),
-        // IconButton(
-        //   onPressed: () {},
-        //   icon: const Icon(Icons.favorite, color: Colors.red),
-        // ),
       ],
       flexibleSpace: FlexibleSpaceBar(
         centerTitle: true,

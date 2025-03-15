@@ -13,24 +13,36 @@ class FavoritesScreen extends ConsumerStatefulWidget {
 }
 
 class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
+  bool isLoading = false;
+  bool isLastPage = false;
+
   @override
   void initState() {
     super.initState();
-    ref.read(favoriteMoviesProvider.notifier).loadNextPage();
+    loadNextPage();
+  }
+
+  void loadNextPage() async {
+    if (isLoading || isLastPage) return;
+    isLoading = true;
+    final movies = await ref.read(favoriteMoviesProvider.notifier).loadNextPage();
+    if (movies.isEmpty) {
+      isLastPage = true;
+    }
+    isLoading = false;
   }
 
   @override
   Widget build(BuildContext context) {
     final favoriteMovies = ref.watch(favoriteMoviesProvider).values.toList();
-    print(favoriteMovies);
-    final isLoading = ref.watch(favoriteMoviesProvider.notifier).isLoading;
+    // final isLoading = ref.watch(favoriteMoviesProvider.notifier).isLoading;
 
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    // if (isLoading) {
+    //   return const Center(child: CircularProgressIndicator());
+    // }
 
     return Scaffold(
-      body: MoviesMasonry(favoriteMovies),
+      body: MoviesMasonry(favoriteMovies, loadNextPage: loadNextPage),
     );
   }
 }

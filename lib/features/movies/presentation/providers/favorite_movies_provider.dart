@@ -12,19 +12,17 @@ class StorageMoviesNotifier extends StateNotifier<Map<int, Movie>> {
   final LocalStorageRepository localStorageRepository;
 
   int page = 1;
-  bool isLoading = false;
 
   StorageMoviesNotifier(this.localStorageRepository) : super({});
 
-  Future<void> loadNextPage() async {
-    if (isLoading) return;
-    isLoading = true;
+  Future<List<Movie>> loadNextPage() async {
+    print('loadNextPage' + page.toString());
     final movies = await localStorageRepository.getFavoriteMovies(page: page, limit: 20);
     state = {
       ...state,
       ...Map.fromEntries(movies.map((movie) => MapEntry(movie.id, movie))),
     };
     page++;
-    isLoading = false;
+    return movies;
   }
 }

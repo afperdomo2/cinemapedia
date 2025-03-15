@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -14,11 +15,33 @@ class MoviesMasonry extends StatefulWidget {
 }
 
 class _MoviesMasonryState extends State<MoviesMasonry> {
+  final ScrollController scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    scrollController.removeListener(_onScroll);
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+      widget.loadNextPage?.call();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: MasonryGridView.count(
+        controller: scrollController,
         crossAxisCount: 3,
         mainAxisSpacing: 5,
         crossAxisSpacing: 5,
@@ -47,11 +70,13 @@ class _MoviePosterLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => GoRouter.of(context).push('/movie/${movie.id}'),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Image.network(movie.posterPath, fit: BoxFit.cover),
+    return FadeInUp(
+      child: GestureDetector(
+        onTap: () => GoRouter.of(context).push('/movie/${movie.id}'),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Image.network(movie.posterPath, fit: BoxFit.cover),
+        ),
       ),
     );
   }

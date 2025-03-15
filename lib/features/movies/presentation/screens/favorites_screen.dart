@@ -1,7 +1,9 @@
 import 'package:cinemapedia/features/movies/presentation/providers/favorite_movies_provider.dart';
+import 'package:cinemapedia/features/movies/presentation/screens/home_screen.dart';
 import 'package:cinemapedia/features/movies/presentation/widgets/movies_masonry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class FavoritesScreen extends ConsumerStatefulWidget {
   static const name = 'favorites-screen';
@@ -73,6 +75,11 @@ class _FavoriteMoviesListEmpty extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54),
             textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 20),
+          FilledButton.tonal(
+            onPressed: () => context.goNamed(HomeScreen.name),
+            child: const Text('Ver películas'),
+          )
         ],
       ),
     );

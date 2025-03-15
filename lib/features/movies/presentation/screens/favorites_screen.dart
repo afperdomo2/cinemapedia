@@ -41,8 +41,40 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
     //   return const Center(child: CircularProgressIndicator());
     // }
 
+    if (favoriteMovies.isEmpty) {
+      return const _FavoriteMoviesListEmpty();
+    }
+
     return Scaffold(
       body: MoviesMasonry(favoriteMovies, loadNextPage: loadNextPage),
+    );
+  }
+}
+
+class _FavoriteMoviesListEmpty extends StatelessWidget {
+  const _FavoriteMoviesListEmpty();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(Icons.favorite_border, size: 60, color: Colors.red.withOpacity(0.5)),
+          const SizedBox(height: 20),
+          Text(
+            'No hay películas favoritas',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Marca algunas películas como favoritas y aparecerán aquí',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

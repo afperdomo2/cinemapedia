@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
+import 'package:cinemapedia/features/movies/presentation/providers/favorite_movies_provider.dart';
 import 'package:cinemapedia/features/movies/presentation/providers/repositories/local_storage_repository_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,6 @@ class MovieDetailsAppBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final localStorageRepository = ref.watch(localStorageRepositoryProvider);
     final isFavoriteMovie = ref.watch(isFavoriteMovieProvider(movie.id));
 
     final size = MediaQuery.of(context).size;
@@ -35,7 +35,7 @@ class MovieDetailsAppBar extends ConsumerWidget {
       actions: [
         IconButton(
           onPressed: () async {
-            await localStorageRepository.toggleFavoriteMovie(movie);
+            await ref.read(favoriteMoviesProvider.notifier).toggleFavoriteMovie(movie);
 
             /// Invalidar el provider para que se vuelva a cargar
             ref.invalidate(isFavoriteMovieProvider(movie.id));

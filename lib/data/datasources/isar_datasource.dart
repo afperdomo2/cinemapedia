@@ -1,5 +1,5 @@
-import 'package:cinemapedia/features/movies/domain/datasources/local_storage_datasource.dart';
-import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
+import 'package:cinemapedia/domain/datasources/local_storage_datasource.dart';
+import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 

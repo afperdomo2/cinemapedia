@@ -1,5 +1,5 @@
-import 'package:cinemapedia/features/movies/domain/entities/actor.dart';
-import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
+import 'package:cinemapedia/domain/entities/actor.dart';
+import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/features/movies/presentation/providers/actors_by_movie_provider.dart';
 import 'package:cinemapedia/features/movies/presentation/providers/movie_details_provider.dart';
 import 'package:cinemapedia/features/movies/presentation/widgets/movie_details/movie_actors.dart';

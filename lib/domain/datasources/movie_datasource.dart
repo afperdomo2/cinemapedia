@@ -1,5 +1,5 @@
-import 'package:cinemapedia/features/movies/domain/entities/actor.dart';
-import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
+import 'package:cinemapedia/domain/entities/actor.dart';
+import 'package:cinemapedia/domain/entities/movie.dart';
 
 abstract class MovieDataSource {
   Future<List<Movie>> getNowPlaying({int page = 1});

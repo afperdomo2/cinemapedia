@@ -1,9 +1,10 @@
-import 'package:cinemapedia/features/movies/data/models/tmdb/movie_credits_tmdb_response.dart';
-import 'package:cinemapedia/features/movies/domain/entities/actor.dart';
+import 'package:cinemapedia/data/models/tmdb/movie_credits_tmdb_response.dart';
+import 'package:cinemapedia/domain/entities/actor.dart';
 
 class ActorMapper {
   static const imageBasePath = 'https://image.tmdb.org/t/p/w500';
-  static const imageNotFound = 'https://icon-library.com/images/no-profile-picture-icon/no-profile-picture-icon-1.jpg';
+  static const imageNotFound =
+      'https://icon-library.com/images/no-profile-picture-icon/no-profile-picture-icon-1.jpg';
 
   static _getImagePath(String imagePath) {
     return imagePath != '' ? '$imageBasePath$imagePath' : imageNotFound;

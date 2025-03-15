@@ -1,4 +1,4 @@
-import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
+import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
 
 class MovieGenres extends StatelessWidget {

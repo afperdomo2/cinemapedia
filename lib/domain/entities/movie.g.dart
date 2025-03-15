@@ -273,8 +273,7 @@ extension MovieQueryWhere on QueryBuilder<Movie, Movie, QWhereClause> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterWhereClause> isarIdLessThan(Id isarId,
-      {bool include = false}) {
+  QueryBuilder<Movie, Movie, QAfterWhereClause> isarIdLessThan(Id isarId, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: isarId, includeUpper: include),
@@ -397,8 +396,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> backdropPathContains(
-      String value,
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> backdropPathContains(String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -409,8 +407,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> backdropPathMatches(
-      String pattern,
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> backdropPathMatches(String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -527,8 +524,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> genreIdsElementContains(
-      String value,
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> genreIdsElementContains(String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -539,8 +535,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> genreIdsElementMatches(
-      String pattern,
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> genreIdsElementMatches(String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -560,8 +555,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition>
-      genreIdsElementIsNotEmpty() {
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> genreIdsElementIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'genreIds',
@@ -570,8 +564,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> genreIdsLengthEqualTo(
-      int length) {
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> genreIdsLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'genreIds',
@@ -846,8 +839,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> originalLanguageContains(
-      String value,
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> originalLanguageContains(String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -858,8 +850,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> originalLanguageMatches(
-      String pattern,
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> originalLanguageMatches(String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -879,8 +870,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition>
-      originalLanguageIsNotEmpty() {
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> originalLanguageIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'originalLanguage',
@@ -977,8 +967,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> originalTitleContains(
-      String value,
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> originalTitleContains(String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -989,8 +978,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> originalTitleMatches(
-      String pattern,
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> originalTitleMatches(String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -1107,8 +1095,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> overviewContains(
-      String value,
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> overviewContains(String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -1119,8 +1106,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> overviewMatches(
-      String pattern,
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> overviewMatches(String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -1299,8 +1285,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> posterPathContains(
-      String value,
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> posterPathContains(String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -1311,8 +1296,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> posterPathMatches(
-      String pattern,
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> posterPathMatches(String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -1357,8 +1341,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> releaseDateEqualTo(
-      DateTime? value) {
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> releaseDateEqualTo(DateTime? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'releaseDate',
@@ -1609,8 +1592,7 @@ extension MovieQueryFilter on QueryBuilder<Movie, Movie, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QAfterFilterCondition> voteCountEqualTo(
-      int value) {
+  QueryBuilder<Movie, Movie, QAfterFilterCondition> voteCountEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'voteCount',
@@ -2002,8 +1984,7 @@ extension MovieQueryWhereDistinct on QueryBuilder<Movie, Movie, QDistinct> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QDistinct> distinctByBackdropPath(
-      {bool caseSensitive = true}) {
+  QueryBuilder<Movie, Movie, QDistinct> distinctByBackdropPath({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'backdropPath', caseSensitive: caseSensitive);
     });
@@ -2021,24 +2002,19 @@ extension MovieQueryWhereDistinct on QueryBuilder<Movie, Movie, QDistinct> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QDistinct> distinctByOriginalLanguage(
-      {bool caseSensitive = true}) {
+  QueryBuilder<Movie, Movie, QDistinct> distinctByOriginalLanguage({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'originalLanguage',
-          caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'originalLanguage', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Movie, Movie, QDistinct> distinctByOriginalTitle(
-      {bool caseSensitive = true}) {
+  QueryBuilder<Movie, Movie, QDistinct> distinctByOriginalTitle({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'originalTitle',
-          caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'originalTitle', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Movie, Movie, QDistinct> distinctByOverview(
-      {bool caseSensitive = true}) {
+  QueryBuilder<Movie, Movie, QDistinct> distinctByOverview({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'overview', caseSensitive: caseSensitive);
     });
@@ -2050,8 +2026,7 @@ extension MovieQueryWhereDistinct on QueryBuilder<Movie, Movie, QDistinct> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QDistinct> distinctByPosterPath(
-      {bool caseSensitive = true}) {
+  QueryBuilder<Movie, Movie, QDistinct> distinctByPosterPath({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'posterPath', caseSensitive: caseSensitive);
     });
@@ -2063,8 +2038,7 @@ extension MovieQueryWhereDistinct on QueryBuilder<Movie, Movie, QDistinct> {
     });
   }
 
-  QueryBuilder<Movie, Movie, QDistinct> distinctByTitle(
-      {bool caseSensitive = true}) {
+  QueryBuilder<Movie, Movie, QDistinct> distinctByTitle({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'title', caseSensitive: caseSensitive);
     });

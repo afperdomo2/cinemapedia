@@ -1,12 +1,12 @@
 import 'package:cinemapedia/config/constants/environment.dart';
-import 'package:cinemapedia/features/movies/data/mappers/actor_mapper.dart';
-import 'package:cinemapedia/features/movies/data/mappers/movie_mapper.dart';
-import 'package:cinemapedia/features/movies/data/models/tmdb/movie_credits_tmdb_response.dart';
-import 'package:cinemapedia/features/movies/data/models/tmdb/movie_details_tmdb_response.dart';
-import 'package:cinemapedia/features/movies/data/models/tmdb/movie_list_tmdb_response.dart';
-import 'package:cinemapedia/features/movies/domain/datasources/movie_datasource.dart';
-import 'package:cinemapedia/features/movies/domain/entities/actor.dart';
-import 'package:cinemapedia/features/movies/domain/entities/movie.dart';
+import 'package:cinemapedia/data/mappers/actor_mapper.dart';
+import 'package:cinemapedia/data/mappers/movie_mapper.dart';
+import 'package:cinemapedia/data/models/tmdb/movie_credits_tmdb_response.dart';
+import 'package:cinemapedia/data/models/tmdb/movie_details_tmdb_response.dart';
+import 'package:cinemapedia/data/models/tmdb/movie_list_tmdb_response.dart';
+import 'package:cinemapedia/domain/datasources/movie_datasource.dart';
+import 'package:cinemapedia/domain/entities/actor.dart';
+import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:dio/dio.dart';
 
 class MovieTMDbDataSource extends MovieDataSource {

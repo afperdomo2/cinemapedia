@@ -1,11 +1,11 @@
 import 'package:cinemapedia/common/widgets/custom_appbar.dart';
 import 'package:cinemapedia/common/widgets/full_screen_loader.dart';
 import 'package:cinemapedia/config/helpers/human_formatter.dart';
-import 'package:cinemapedia/features/movies/presentation/providers/is_movies_loading_provider.dart';
-import 'package:cinemapedia/features/movies/presentation/providers/movies_provider.dart';
-import 'package:cinemapedia/features/movies/presentation/providers/movies_slideshow_provider.dart';
-import 'package:cinemapedia/features/movies/presentation/widgets/movies_horizontal_listview.dart';
-import 'package:cinemapedia/features/movies/presentation/widgets/movies_slideshow.dart';
+import 'package:cinemapedia/features/home/providers/is_movies_loading_provider.dart';
+import 'package:cinemapedia/features/home/providers/movies_provider.dart';
+import 'package:cinemapedia/features/home/providers/movies_slideshow_provider.dart';
+import 'package:cinemapedia/features/home/widgets/movies_horizontal_listview.dart';
+import 'package:cinemapedia/features/home/widgets/movies_slideshow.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

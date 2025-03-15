@@ -1,10 +1,10 @@
 import 'package:cinemapedia/domain/entities/actor.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
-import 'package:cinemapedia/features/movies/presentation/providers/actors_by_movie_provider.dart';
-import 'package:cinemapedia/features/movies/presentation/providers/movie_details_provider.dart';
-import 'package:cinemapedia/features/movies/presentation/widgets/movie_details/movie_actors.dart';
-import 'package:cinemapedia/features/movies/presentation/widgets/movie_details/movie_details_appbar.dart';
-import 'package:cinemapedia/features/movies/presentation/widgets/movie_details/movie_genres.dart';
+import 'package:cinemapedia/features/movie_details/providers/actors_by_movie_provider.dart';
+import 'package:cinemapedia/features/movie_details/providers/movie_details_provider.dart';
+import 'package:cinemapedia/features/movie_details/widgets/movie_actors.dart';
+import 'package:cinemapedia/features/movie_details/widgets/movie_details_appbar.dart';
+import 'package:cinemapedia/features/movie_details/widgets/movie_genres.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

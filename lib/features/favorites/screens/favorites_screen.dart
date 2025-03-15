@@ -1,6 +1,6 @@
-import 'package:cinemapedia/features/movies/presentation/providers/favorite_movies_provider.dart';
-import 'package:cinemapedia/features/movies/presentation/screens/home_screen.dart';
-import 'package:cinemapedia/features/movies/presentation/widgets/movies_masonry.dart';
+import 'package:cinemapedia/features/favorites/providers/favorite_movies_provider.dart';
+import 'package:cinemapedia/features/home/screens/home_screen.dart';
+import 'package:cinemapedia/features/favorites/widgets/movies_masonry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

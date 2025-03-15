@@ -1,7 +1,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
-import 'package:cinemapedia/features/movies/presentation/providers/favorite_movies_provider.dart';
-import 'package:cinemapedia/features/movies/presentation/providers/repositories/local_storage_repository_provider.dart';
+import 'package:cinemapedia/features/favorites/providers/favorite_movies_provider.dart';
+import 'package:cinemapedia/providers/repositories/local_storage_repository_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

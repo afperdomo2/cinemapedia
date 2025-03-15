@@ -1,5 +1,5 @@
 import 'package:cinemapedia/domain/entities/actor.dart';
-import 'package:cinemapedia/features/movies/presentation/providers/repositories/movie_repository_provider.dart';
+import 'package:cinemapedia/providers/repositories/movie_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final actorByMovieProvider =

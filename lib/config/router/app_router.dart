@@ -1,7 +1,8 @@
 import 'package:cinemapedia/common/widgets/scaffold_with_bottom_navbar.dart';
-import 'package:cinemapedia/features/movies/presentation/screens/categories_screen.dart';
-import 'package:cinemapedia/features/movies/presentation/screens/favorites_screen.dart';
-import 'package:cinemapedia/features/movies/presentation/screens/screens.dart';
+import 'package:cinemapedia/features/home/screens/home_screen.dart';
+import 'package:cinemapedia/features/categories/screens/categories_screen.dart';
+import 'package:cinemapedia/features/favorites/screens/favorites_screen.dart';
+import 'package:cinemapedia/features/movie_details/screens/movie_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

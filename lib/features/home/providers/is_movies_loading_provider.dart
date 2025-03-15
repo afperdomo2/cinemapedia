@@ -8,7 +8,10 @@ final isMoviesLoadingProvider = Provider<bool>((ref) {
   final isTopRatedMoviesEmpty = ref.watch(topRatedMoviesProvider).isEmpty;
   final isUpcomingMoviesEmpty = ref.watch(upcomingMoviesProvider).isEmpty;
 
-  final isLoading = isNowPlayingMoviesEmpty || isPopularMoviesEmpty || isTopRatedMoviesEmpty || isUpcomingMoviesEmpty;
+  final isLoading = isNowPlayingMoviesEmpty ||
+      isPopularMoviesEmpty ||
+      isTopRatedMoviesEmpty ||
+      isUpcomingMoviesEmpty;
 
   return isLoading;
 });

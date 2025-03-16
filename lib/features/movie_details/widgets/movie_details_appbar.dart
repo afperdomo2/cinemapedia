@@ -36,8 +36,7 @@ class MovieDetailsAppBar extends ConsumerWidget {
         IconButton(
           onPressed: () async {
             await ref.read(favoriteMoviesProvider.notifier).toggleFavoriteMovie(movie);
-
-            /// Invalidar el provider para que se vuelva a cargar
+            // Invalidar el provider para que se vuelva a cargar
             ref.invalidate(isFavoriteMovieProvider(movie.id));
           },
           icon: isFavoriteMovie.when(
@@ -49,6 +48,8 @@ class MovieDetailsAppBar extends ConsumerWidget {
           ),
         ),
       ],
+
+      /// FlexibleSpaceBar: Espacio flexible de la barra superior que se expande y colapsa
       flexibleSpace: FlexibleSpaceBar(
         centerTitle: true,
         titlePadding: const EdgeInsets.fromLTRB(5, 0, 5, 10),

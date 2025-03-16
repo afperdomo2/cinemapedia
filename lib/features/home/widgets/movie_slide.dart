@@ -39,7 +39,7 @@ class MovieSlide extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       stops: const [0.8, 0.95],
-                      colors: [Colors.transparent, Colors.black.withOpacity(0.4)],
+                      colors: [Colors.transparent, Colors.black.withOpacity(0.2)],
                     ),
                   ),
                 ),

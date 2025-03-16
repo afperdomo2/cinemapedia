@@ -79,7 +79,7 @@ class __HomeViewState extends ConsumerState<_HomeView> {
                 MoviesHorizontalListView(
                   nowPlayingMovies,
                   title: 'En cartelera',
-                  subtitle: HumanFormatter.currentDa(DateTime.now()),
+                  subtitle: HumanFormatter.currentDate(DateTime.now()),
                   loadNextPage: () => ref.read(nowPlayingMoviesProvider.notifier).loadNextPage(),
                 ),
                 MoviesHorizontalListView(

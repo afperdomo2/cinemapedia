@@ -5,6 +5,7 @@ import 'package:cinemapedia/features/movie_details/providers/movie_details_provi
 import 'package:cinemapedia/features/movie_details/widgets/movie_actors.dart';
 import 'package:cinemapedia/features/movie_details/widgets/movie_details_appbar.dart';
 import 'package:cinemapedia/features/movie_details/widgets/movie_genres.dart';
+import 'package:cinemapedia/features/movie_details/widgets/movie_resume.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -51,7 +52,7 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _MovieResume(movie: movie),
+                        MovieResume(movie: movie),
                         MovieGenres(movie: movie),
                         MovieActors(actors: actors),
                         const SizedBox(height: 50),
@@ -62,49 +63,6 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
               ],
             )
           : const Center(child: Text('Movie not found')),
-    );
-  }
-}
-
-class _MovieResume extends StatelessWidget {
-  const _MovieResume({required this.movie});
-
-  final Movie movie;
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final textStyles = Theme.of(context).textTheme;
-
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// Poster
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.network(movie.posterPath, width: size.width * 0.3, fit: BoxFit.cover),
-          ),
-          const SizedBox(width: 10),
-
-          /// Descripción
-          SizedBox(
-            width: (size.width - 45) * 0.7,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                /// Título
-                Text(movie.title, style: textStyles.titleLarge!.copyWith(fontSize: 28)),
-
-                /// Resumen
-                const SizedBox(height: 10),
-                Text(movie.overview != '' ? movie.overview : 'No se encontró una descripción'),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

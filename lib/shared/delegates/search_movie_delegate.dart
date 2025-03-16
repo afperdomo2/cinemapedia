@@ -185,19 +185,34 @@ class _MovieItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                /// Title
                 Text(movie.title, style: textStyles.titleLarge!.copyWith(fontSize: 20)),
                 const SizedBox(height: 5),
-                Text(movie.overview, maxLines: 2, overflow: TextOverflow.ellipsis),
+
+                /// Overview
+                Text(
+                  movie.overview != '' ? movie.overview : 'No se encontró una descripción',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 const SizedBox(height: 4),
+
+                /// Release date, rating and vote count
                 Row(
                   children: [
-                    Text(movie.releaseDate?.year.toString() ?? '', style: textStyles.titleSmall),
+                    /// Release date
+                    Text(movie.releaseDate?.year.toString() ?? '--', style: textStyles.titleSmall),
                     const SizedBox(width: 7),
+
+                    /// Rating
                     const Icon(Icons.circle, size: 4, color: Colors.grey),
                     const SizedBox(width: 7),
                     VoteAverage(movie.voteAverage),
+
+                    /// Vote count
                     const SizedBox(width: 7),
                     const Icon(Icons.circle, size: 4, color: Colors.grey),
+                    const SizedBox(width: 7),
                     VoteCount(movie.voteCount),
                   ],
                 )

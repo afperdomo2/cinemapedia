@@ -90,4 +90,12 @@ class MovieTMDbDataSource extends MovieDataSource {
     print('Cantidad de registros: ${response.data['results'].length}');
     return _mapResponseToMovies(response.data);
   }
+
+  @override
+  Future<List<Movie>> getSimilarMovies(String movieId, {int page = 1}) async {
+    final response = await dio.get('/movie/$movieId/similar', queryParameters: {
+      'page': page,
+    });
+    return _mapResponseToMovies(response.data);
+  }
 }

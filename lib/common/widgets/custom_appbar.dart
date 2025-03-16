@@ -1,6 +1,6 @@
 import 'package:cinemapedia/domain/entities/movie.dart';
-import 'package:cinemapedia/features/movies/presentation/delegates/search_movie_delegate.dart';
-import 'package:cinemapedia/features/movies/presentation/providers/search/search_movie_provider.dart';
+import 'package:cinemapedia/shared/delegates/search_movie_delegate.dart';
+import 'package:cinemapedia/providers/search_movie_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

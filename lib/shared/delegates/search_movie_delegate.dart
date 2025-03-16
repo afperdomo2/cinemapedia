@@ -168,12 +168,13 @@ class _MovieItem extends StatelessWidget {
         children: [
           /// Image
           ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.network(
-              movie.posterPath,
+            borderRadius: BorderRadius.circular(10),
+            child: FadeInImage(
+              placeholder: const AssetImage('assets/loaders/bottle-loader.gif'),
               width: size.width * 0.2,
               height: size.width * 0.3,
               fit: BoxFit.cover,
+              image: NetworkImage(movie.posterPath),
             ),
           ),
 

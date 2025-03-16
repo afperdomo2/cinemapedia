@@ -71,7 +71,11 @@ class __HomeViewState extends ConsumerState<_HomeView> {
               children: [
                 // const CustomAppBar(),
                 const SizedBox(height: 2),
+
+                /// Movies SlideShow
                 MoviesSlideShow(movies: moviesSlideShow),
+
+                /// Movies Horizontal ListViews
                 MoviesHorizontalListView(
                   nowPlayingMovies,
                   title: 'En cartelera',

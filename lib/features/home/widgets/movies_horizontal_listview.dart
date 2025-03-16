@@ -64,10 +64,12 @@ class _MoviesHorizontalListViewState extends State<MoviesHorizontalListView> {
               physics: const BouncingScrollPhysics(),
               itemBuilder: (context, index) {
                 return GestureDetector(
-                  child: FadeInRight(child: _Slide(widget.movies[index])),
-                  onTap: () => {
-                    GoRouter.of(context).push('/movie/${widget.movies[index].id}'),
+                  onTap: () {
+                    context.push('/movie/${widget.movies[index].id}');
                   },
+                  child: FadeInRight(
+                    child: _Slide(widget.movies[index]),
+                  ),
                 );
               },
             ),
@@ -88,7 +90,7 @@ class _Slide extends StatelessWidget {
     final textStyles = Theme.of(context).textTheme;
 
     const imageWidth = 150.0;
-    const imageHeight = 200.0;
+    const imageHeight = 220.0;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -100,16 +102,14 @@ class _Slide extends StatelessWidget {
             width: imageWidth,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: Image.network(
-                movie.posterPath,
+
+              /// FadeInImage es un widget que permite mostrar una imagen con un efecto de transición.
+              child: FadeInImage(
                 height: imageHeight,
                 width: imageWidth,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  return (loadingProgress == null)
-                      ? FadeIn(child: child)
-                      : const DecoratedBox(decoration: BoxDecoration(color: Colors.grey));
-                },
+                fit: BoxFit.cover, // Ajusta la imagen al tamaño del contenedor.
+                placeholder: const AssetImage('assets/loaders/bottle-loader.gif'),
+                image: NetworkImage(movie.posterPath),
               ),
             ),
           ),

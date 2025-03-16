@@ -1,4 +1,3 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
@@ -60,17 +59,13 @@ class _Slide extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 30),
       child: DecoratedBox(
-        decoration: boxDecoration,
+        decoration: boxDecoration, // Añade una sombra alrededor del contenedor.
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
-          child: Image.network(
-            movie.backdropPath,
+          child: FadeInImage(
             fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              return (loadingProgress == null)
-                  ? FadeIn(child: child)
-                  : const DecoratedBox(decoration: BoxDecoration(color: Colors.grey));
-            },
+            placeholder: const AssetImage('assets/loaders/bottle-loader.gif'),
+            image: NetworkImage(movie.backdropPath),
           ),
         ),
       ),

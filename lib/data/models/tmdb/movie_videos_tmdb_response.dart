@@ -5,11 +5,12 @@ class MovieVideosTMDbResponse {
   });
 
   final int id;
-  final List<Result> results;
+  final List<MovieVideoTMDbResponse> results;
 
   factory MovieVideosTMDbResponse.fromJson(Map<String, dynamic> json) => MovieVideosTMDbResponse(
         id: json['id'],
-        results: List<Result>.from(json['results'].map((x) => Result.fromJson(x))),
+        results: List<MovieVideoTMDbResponse>.from(
+            json['results'].map((x) => MovieVideoTMDbResponse.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -18,8 +19,8 @@ class MovieVideosTMDbResponse {
       };
 }
 
-class Result {
-  Result({
+class MovieVideoTMDbResponse {
+  MovieVideoTMDbResponse({
     required this.iso6391,
     required this.iso31661,
     required this.name,
@@ -43,7 +44,7 @@ class Result {
   final DateTime publishedAt;
   final String id;
 
-  factory Result.fromJson(Map<String, dynamic> json) => Result(
+  factory MovieVideoTMDbResponse.fromJson(Map<String, dynamic> json) => MovieVideoTMDbResponse(
         iso6391: json['iso_639_1'],
         iso31661: json['iso_3166_1'],
         name: json['name'],

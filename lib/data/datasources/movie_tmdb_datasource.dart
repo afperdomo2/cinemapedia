@@ -1,6 +1,7 @@
 import 'package:cinemapedia/config/constants/environment.dart';
 import 'package:cinemapedia/data/mappers/actor_mapper.dart';
 import 'package:cinemapedia/data/mappers/movie_mapper.dart';
+import 'package:cinemapedia/data/mappers/video_mapper.dart';
 import 'package:cinemapedia/data/models/tmdb/movie_credits_tmdb_response.dart';
 import 'package:cinemapedia/data/models/tmdb/movie_details_tmdb_response.dart';
 import 'package:cinemapedia/data/models/tmdb/movie_list_tmdb_response.dart';
@@ -8,6 +9,7 @@ import 'package:cinemapedia/data/models/tmdb/movie_videos_tmdb_response.dart';
 import 'package:cinemapedia/domain/datasources/movie_datasource.dart';
 import 'package:cinemapedia/domain/entities/actor.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
+import 'package:cinemapedia/domain/entities/video.dart';
 import 'package:dio/dio.dart';
 
 class MovieTMDbDataSource extends MovieDataSource {
@@ -88,7 +90,7 @@ class MovieTMDbDataSource extends MovieDataSource {
       'query': query,
       'page': page,
     });
-    print('Cantidad de registros: ${response.data['results'].length}');
+    // print('Cantidad de registros: ${response.data['results'].length}');
     return _mapResponseToMovies(response.data);
   }
 
@@ -101,12 +103,12 @@ class MovieTMDbDataSource extends MovieDataSource {
   }
 
   @override
-  Future<List<String>> getMovieYoutubeVideos(String movieId) async {
+  Future<List<Video>> getMovieYoutubeVideos(String movieId) async {
     final response = await dio.get('/movie/$movieId/videos');
     final videos = MovieVideosTMDbResponse.fromJson(response.data);
     return videos.results
-        .where((video) => video.site == 'YouTube')
-        .map((video) => video.key)
+        .where((moviedbVideo) => moviedbVideo.site == 'YouTube')
+        .map<Video>((moviedbVideo) => VideoMapper.movieVideoTMDbResponseToEntity(moviedbVideo))
         .toList();
   }
 }

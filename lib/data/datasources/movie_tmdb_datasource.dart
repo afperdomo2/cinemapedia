@@ -4,6 +4,7 @@ import 'package:cinemapedia/data/mappers/movie_mapper.dart';
 import 'package:cinemapedia/data/models/tmdb/movie_credits_tmdb_response.dart';
 import 'package:cinemapedia/data/models/tmdb/movie_details_tmdb_response.dart';
 import 'package:cinemapedia/data/models/tmdb/movie_list_tmdb_response.dart';
+import 'package:cinemapedia/data/models/tmdb/movie_videos_tmdb_response.dart';
 import 'package:cinemapedia/domain/datasources/movie_datasource.dart';
 import 'package:cinemapedia/domain/entities/actor.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
@@ -97,5 +98,15 @@ class MovieTMDbDataSource extends MovieDataSource {
       'page': page,
     });
     return _mapResponseToMovies(response.data);
+  }
+
+  @override
+  Future<List<String>> getMovieYoutubeVideos(String movieId) async {
+    final response = await dio.get('/movie/$movieId/videos');
+    final videos = MovieVideosTMDbResponse.fromJson(response.data);
+    return videos.results
+        .where((video) => video.site == 'YouTube')
+        .map((video) => video.key)
+        .toList();
   }
 }

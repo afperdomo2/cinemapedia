@@ -65,7 +65,9 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
                         similarMoviesFuture.when(
                           error: errorSimilarMovies,
                           loading: loadingSimilarMovies,
-                          data: buildSimilarMovies,
+                          data: (movies) {
+                            return MoviesHorizontalListView(movies, title: 'Recomendaciones');
+                          },
                         ),
                         const SizedBox(height: 50),
                       ],
@@ -78,18 +80,11 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
     );
   }
 
-  Widget buildSimilarMovies(movies) {
-    return Container(
-      margin: const EdgeInsetsDirectional.only(bottom: 50),
-      child: MoviesHorizontalListView(movies, title: 'Películas similares'),
-    );
-  }
-
   Widget loadingSimilarMovies() {
     return const Center(child: CircularProgressIndicator(strokeWidth: 2));
   }
 
   Widget errorSimilarMovies(Object error, StackTrace? stackTrace) {
-    return const Center(child: Text('No se pudo cargar películas similares'));
+    return const Center(child: Text('No se pudo cargar las Recomendaciones'));
   }
 }

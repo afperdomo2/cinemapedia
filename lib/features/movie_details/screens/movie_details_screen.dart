@@ -1,7 +1,9 @@
 import 'package:cinemapedia/domain/entities/actor.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
+import 'package:cinemapedia/features/home/widgets/movies_horizontal_listview.dart';
 import 'package:cinemapedia/features/movie_details/providers/actors_by_movie_provider.dart';
 import 'package:cinemapedia/features/movie_details/providers/movie_details_provider.dart';
+import 'package:cinemapedia/features/movie_details/providers/similar_movies_provider.dart';
 import 'package:cinemapedia/features/movie_details/widgets/movie_actors.dart';
 import 'package:cinemapedia/features/movie_details/widgets/movie_details_appbar.dart';
 import 'package:cinemapedia/features/movie_details/widgets/movie_genres.dart';
@@ -33,6 +35,8 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
     final Movie? movie = ref.watch(movieDetailsProvider)[widget.movieId];
     final List<Actor> actors = ref.watch(actorByMovieProvider)[widget.movieId] ?? [];
 
+    final similarMoviesFuture = ref.watch(similarMoviesProvider(widget.movieId));
+
     final bool isLoading = ref.watch(movieDetailsProvider.notifier).isLoading;
 
     if (isLoading) {
@@ -46,7 +50,10 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
           ? CustomScrollView(
               physics: const ClampingScrollPhysics(),
               slivers: [
+                /// App bar con la imagen de la película
                 MovieDetailsAppBar(movie: movie),
+
+                /// Contenido de la película
                 SliverList(
                   delegate: SliverChildListDelegate([
                     Column(
@@ -55,6 +62,11 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
                         MovieResume(movie: movie),
                         MovieGenres(movie: movie),
                         MovieActors(actors: actors),
+                        similarMoviesFuture.when(
+                          error: errorSimilarMovies,
+                          loading: loadingSimilarMovies,
+                          data: buildSimilarMovies,
+                        ),
                         const SizedBox(height: 50),
                       ],
                     )
@@ -64,5 +76,20 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
             )
           : const Center(child: Text('Movie not found')),
     );
+  }
+
+  Widget buildSimilarMovies(movies) {
+    return Container(
+      margin: const EdgeInsetsDirectional.only(bottom: 50),
+      child: MoviesHorizontalListView(movies, title: 'Películas similares'),
+    );
+  }
+
+  Widget loadingSimilarMovies() {
+    return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+  }
+
+  Widget errorSimilarMovies(Object error, StackTrace? stackTrace) {
+    return const Center(child: Text('No se pudo cargar películas similares'));
   }
 }

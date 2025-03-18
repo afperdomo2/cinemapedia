@@ -4,10 +4,12 @@ import 'package:cinemapedia/features/home/widgets/movies_horizontal_listview.dar
 import 'package:cinemapedia/features/movie_details/providers/actors_by_movie_provider.dart';
 import 'package:cinemapedia/features/movie_details/providers/movie_details_provider.dart';
 import 'package:cinemapedia/features/movie_details/providers/similar_movies_provider.dart';
+import 'package:cinemapedia/features/movie_details/providers/videos_from_movie_provider.dart';
 import 'package:cinemapedia/features/movie_details/widgets/movie_actors.dart';
 import 'package:cinemapedia/features/movie_details/widgets/movie_details_appbar.dart';
 import 'package:cinemapedia/features/movie_details/widgets/movie_genres.dart';
 import 'package:cinemapedia/features/movie_details/widgets/movie_resume.dart';
+import 'package:cinemapedia/features/movie_details/widgets/movie_videos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -36,6 +38,7 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
     final List<Actor> actors = ref.watch(actorByMovieProvider)[widget.movieId] ?? [];
 
     final similarMoviesFuture = ref.watch(similarMoviesProvider(widget.movieId));
+    final videosFromMovieFuture = ref.watch(videosFromMovieProvider(widget.movieId));
 
     final bool isLoading = ref.watch(movieDetailsProvider.notifier).isLoading;
 
@@ -62,9 +65,16 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
                         MovieResume(movie: movie),
                         MovieGenres(movie: movie),
                         MovieActors(actors: actors),
+                        videosFromMovieFuture.when(
+                          error: (error, stackTrace) {
+                            return const Center(child: Text('No se pudo cargar los videos'));
+                          },
+                          loading: loadingFuture,
+                          data: (videos) => MovieVideos(videos),
+                        ),
                         similarMoviesFuture.when(
                           error: errorSimilarMovies,
-                          loading: loadingSimilarMovies,
+                          loading: loadingFuture,
                           data: (movies) {
                             return MoviesHorizontalListView(movies, title: 'Recomendaciones');
                           },
@@ -80,7 +90,7 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
     );
   }
 
-  Widget loadingSimilarMovies() {
+  Widget loadingFuture() {
     return const Center(child: CircularProgressIndicator(strokeWidth: 2));
   }
 

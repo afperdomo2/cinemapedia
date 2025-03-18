@@ -9,7 +9,37 @@ class MovieVideos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Placeholder();
+    return Container(
+      color: Colors.red,
+      margin: const EdgeInsetsDirectional.only(bottom: 50),
+      child: SizedBox(
+        height: 350,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: videos.map((e) => Text(e.name)).toList(),
+        ),
+      ),
+    );
+    // return Container(
+    //   margin: const EdgeInsetsDirectional.only(bottom: 50),
+    //   child: Column(
+    //     crossAxisAlignment: CrossAxisAlignment.start,
+    //     children: [
+    //       // ignore: prefer_const_constructors
+    //       Padding(
+    //         padding: const EdgeInsets.symmetric(horizontal: 10),
+    //         child: const Text(
+    //           'Videos',
+    //           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    //         ),
+    //       ),
+    //       ...videos
+    //           .map((video) =>
+    //               _YouTubeVideoPlayer(youtubeId: videos.first.youtubeKey, name: video.name))
+    //           .toList()
+    //     ],
+    //   ),
+    // );
   }
 }
 

@@ -13,7 +13,7 @@ class MovieActors extends StatelessWidget {
     const imageWidth = 135.0;
 
     return SizedBox(
-      height: 300,
+      height: 270,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: actors.length,

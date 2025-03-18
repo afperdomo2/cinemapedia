@@ -42,6 +42,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
+        minSdkVersion flutter.minSdkVersion // Actualizar a SDK 19 como mínimo
     }
 
     buildTypes {

@@ -72,7 +72,7 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
                           loading: loadingFuture,
                           data: (videos) => MovieVideos(videos),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 7),
                         similarMoviesFuture.when(
                           error: errorSimilarMovies,
                           loading: loadingFuture,

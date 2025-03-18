@@ -2,6 +2,8 @@ import 'package:cinemapedia/domain/entities/video.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+// NOTE: Actualmente no está en uso, pero sirve para mostrar el video en un screen
+// independiente.
 class VideoScreen extends StatefulWidget {
   final List<Video> videos;
 

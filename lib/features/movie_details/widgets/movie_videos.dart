@@ -1,3 +1,4 @@
+import 'package:card_swiper/card_swiper.dart';
 import 'package:cinemapedia/domain/entities/video.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -16,19 +17,23 @@ class MovieVideos extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ignore: prefer_const_constructors
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: const Text('Videos', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w400)),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Text('Videos', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w400)),
         ),
-
-        //* Aunque tengo varios videos, sólo quiero mostrar el primero
-        _YouTubeVideoPlayer(youtubeId: videos.first.youtubeKey, name: videos.first.name)
-
-        //* Si se desean mostrar todos los videos
-        // ...videos.map(
-        //   (video) => _YouTubeVideoPlayer(youtubeId: videos.first.youtubeKey, name: video.name)
-        // ).toList()
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 250, // Adjust height as needed
+          child: Swiper(
+            itemCount: videos.length,
+            viewportFraction: 0.8,
+            scale: 0.92,
+            itemBuilder: (context, index) {
+              final video = videos[index];
+              return _YouTubeVideoPlayer(youtubeId: video.youtubeKey, name: video.name);
+            },
+          ),
+        ),
       ],
     );
   }
@@ -75,13 +80,12 @@ class _YouTubeVideoPlayerState extends State<_YouTubeVideoPlayer> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 7),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Text(widget.name),
-          const SizedBox(height: 5),
           YoutubePlayer(controller: _controller),
+          Text(widget.name),
         ],
       ),
     );

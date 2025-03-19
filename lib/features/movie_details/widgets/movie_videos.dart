@@ -17,17 +17,26 @@ class MovieVideos extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          child: Text('Videos', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w400)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            children: [
+              const Text('Videos', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w400)),
+              const SizedBox(width: 5),
+              Text(
+                '(${videos.length})',
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w200),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 5),
         SizedBox(
-          height: 250, // Adjust height as needed
+          height: 220, // Adjust height as needed
           child: Swiper(
             itemCount: videos.length,
-            viewportFraction: 0.8,
-            scale: 0.92,
+            viewportFraction: 0.84,
+            scale: 0.95,
             itemBuilder: (context, index) {
               final video = videos[index];
               return _YouTubeVideoPlayer(youtubeId: video.youtubeKey, name: video.name);
@@ -84,7 +93,14 @@ class _YouTubeVideoPlayerState extends State<_YouTubeVideoPlayer> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          YoutubePlayer(controller: _controller),
+          YoutubePlayer(
+            controller: _controller,
+            bottomActions: [
+              CurrentPosition(),
+              ProgressBar(isExpanded: true),
+              RemainingDuration(),
+            ],
+          ),
           Text(widget.name),
         ],
       ),

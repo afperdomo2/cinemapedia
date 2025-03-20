@@ -1,8 +1,8 @@
 import 'package:cinemapedia/common/widgets/scaffold_with_bottom_navbar.dart';
-import 'package:cinemapedia/features/home/screens/home_screen.dart';
-import 'package:cinemapedia/features/categories/screens/categories_screen.dart';
 import 'package:cinemapedia/features/favorites/screens/favorites_screen.dart';
+import 'package:cinemapedia/features/home/screens/home_screen.dart';
 import 'package:cinemapedia/features/movie_details/screens/movie_details_screen.dart';
+import 'package:cinemapedia/features/popular/screens/popular_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -44,9 +44,9 @@ final appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/categories',
-              name: CategoriesScreen.name,
-              builder: (context, state) => const CategoriesScreen(),
+              path: '/popular',
+              name: PopularScreen.name,
+              builder: (context, state) => const PopularScreen(),
             ),
           ],
         ),

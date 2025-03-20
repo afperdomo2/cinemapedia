@@ -20,7 +20,7 @@ class ScaffoldWithBottomNavBar extends StatelessWidget {
         onTap: (index) => _onTap(context, index),
         items: const [
           BottomNavigationBarItem(label: 'Inicio', icon: Icon(Icons.home_max)),
-          BottomNavigationBarItem(label: 'Categorías', icon: Icon(Icons.label_outline)),
+          BottomNavigationBarItem(label: 'Populares', icon: Icon(Icons.star_outline)),
           BottomNavigationBarItem(label: 'Favoritos', icon: Icon(Icons.favorite_outline)),
         ],
       ),

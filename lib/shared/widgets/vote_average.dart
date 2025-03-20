@@ -11,14 +11,20 @@ class VoteAverage extends StatelessWidget {
 
     return Row(
       children: [
-        const Icon(Icons.star, size: 20, color: Colors.amber),
+        Icon(Icons.star, size: 20, color: _getColor(average)),
         const SizedBox(width: 2),
         Text(
           average.toStringAsFixed(1),
           style: textStyles.bodyMedium
-              ?.copyWith(color: Colors.yellow[800], fontWeight: FontWeight.bold),
+              ?.copyWith(color: _getColor(average), fontWeight: FontWeight.bold),
         ),
       ],
     );
+  }
+
+  Color _getColor(double value) {
+    if (value <= 3) return Colors.red;
+    if (value <= 6) return Colors.orange[800]!;
+    return Colors.amber;
   }
 }

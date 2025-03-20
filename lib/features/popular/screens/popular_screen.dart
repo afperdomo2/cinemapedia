@@ -11,6 +11,7 @@ class PopularScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final popularMovies = ref.watch(popularMoviesProvider);
+    final loadNextPage = ref.read(popularMoviesProvider.notifier).loadNextPage;
 
     final theme = Theme.of(context);
     final titleStyle = theme.textTheme.titleMedium;
@@ -30,9 +31,11 @@ class PopularScreen extends ConsumerWidget {
           ],
         ),
       ),
-      body: MoviesMasonry(
-        popularMovies,
-        loadNextPage: () => ref.read(popularMoviesProvider.notifier).loadNextPage(),
+
+      /// Body
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 3.0),
+        child: MoviesMasonry(popularMovies, loadNextPage: loadNextPage),
       ),
     );
   }

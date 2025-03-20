@@ -54,7 +54,12 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
           ],
         ),
       ),
-      body: MoviesMasonry(favoriteMovies, loadNextPage: loadNextPage),
+
+      /// Body
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 3.0),
+        child: MoviesMasonry(favoriteMovies, loadNextPage: loadNextPage),
+      ),
     );
   }
 }

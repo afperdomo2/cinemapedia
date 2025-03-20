@@ -19,7 +19,7 @@ class CustomAppBar extends ConsumerWidget {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: SizedBox(
           width: double.infinity,
           child: Row(

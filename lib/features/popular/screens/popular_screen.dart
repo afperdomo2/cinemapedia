@@ -12,6 +12,9 @@ class PopularScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final popularMovies = ref.watch(popularMoviesProvider);
 
+    final theme = Theme.of(context);
+    final titleStyle = theme.textTheme.titleMedium;
+
     if (popularMovies.isEmpty) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator(strokeWidth: 2)),
@@ -20,7 +23,12 @@ class PopularScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Películas populares'),
+        title: Row(
+          children: [
+            Icon(Icons.star_outlined, color: Colors.yellow[700]),
+            Text('Películas populares', style: titleStyle),
+          ],
+        ),
       ),
       body: MoviesMasonry(
         popularMovies,

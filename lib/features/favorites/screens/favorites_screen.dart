@@ -37,17 +37,23 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     final favoriteMovies = ref.watch(favoriteMoviesProvider).values.toList();
-    // final isLoading = ref.watch(favoriteMoviesProvider.notifier).isLoading;
 
-    // if (isLoading) {
-    //   return const Center(child: CircularProgressIndicator());
-    // }
+    final theme = Theme.of(context);
+    final titleStyle = theme.textTheme.titleMedium;
 
     if (favoriteMovies.isEmpty) {
       return const _FavoriteMoviesListEmpty();
     }
 
     return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          children: [
+            const Icon(Icons.favorite, color: Colors.red),
+            Text('Películas favoritas', style: titleStyle),
+          ],
+        ),
+      ),
       body: MoviesMasonry(favoriteMovies, loadNextPage: loadNextPage),
     );
   }

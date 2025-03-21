@@ -161,65 +161,70 @@ class _MovieItem extends StatelessWidget {
     final textStyles = Theme.of(context).textTheme;
     final size = MediaQuery.of(context).size;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// Image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: FadeInImage(
-              placeholder: const AssetImage('assets/loaders/bottle-loader.gif'),
-              width: size.width * 0.2,
-              height: size.width * 0.3,
-              fit: BoxFit.cover,
-              image: NetworkImage(movie.posterPath),
+    return FadeIn(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// Image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: FadeInImage(
+                placeholder: const AssetImage('assets/loaders/bottle-loader.gif'),
+                width: size.width * 0.2,
+                height: size.width * 0.3,
+                fit: BoxFit.cover,
+                image: NetworkImage(movie.posterPath),
+              ),
             ),
-          ),
 
-          /// Title and overview
-          const SizedBox(width: 10),
-          SizedBox(
-            width: size.width * 0.7,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                /// Title
-                Text(movie.title, style: textStyles.titleLarge!.copyWith(fontSize: 20)),
-                const SizedBox(height: 5),
+            /// Title and overview
+            const SizedBox(width: 10),
+            SizedBox(
+              width: size.width * 0.7,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// Title
+                  Text(movie.title, style: textStyles.titleLarge!.copyWith(fontSize: 20)),
+                  const SizedBox(height: 5),
 
-                /// Overview
-                Text(
-                  movie.overview != '' ? movie.overview : 'No se encontró una descripción',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
+                  /// Overview
+                  Text(
+                    movie.overview != '' ? movie.overview : 'No se encontró una descripción',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
 
-                /// Release date, rating and vote count
-                Row(
-                  children: [
-                    /// Release date
-                    Text(movie.releaseDate?.year.toString() ?? '--', style: textStyles.titleSmall),
-                    const SizedBox(width: 7),
+                  /// Release date, rating and vote count
+                  Row(
+                    children: [
+                      /// Release date
+                      Text(
+                        movie.releaseDate?.year.toString() ?? '--',
+                        style: textStyles.titleSmall,
+                      ),
+                      const SizedBox(width: 7),
 
-                    /// Rating
-                    const Icon(Icons.circle, size: 4, color: Colors.grey),
-                    const SizedBox(width: 7),
-                    VoteAverage(movie.voteAverage),
+                      /// Rating
+                      const Icon(Icons.circle, size: 4, color: Colors.grey),
+                      const SizedBox(width: 7),
+                      VoteAverage(movie.voteAverage),
 
-                    /// Vote count
-                    const SizedBox(width: 7),
-                    const Icon(Icons.circle, size: 4, color: Colors.grey),
-                    const SizedBox(width: 7),
-                    VoteCount(movie.voteCount),
-                  ],
-                )
-              ],
-            ),
-          )
-        ],
+                      /// Vote count
+                      const SizedBox(width: 7),
+                      const Icon(Icons.circle, size: 4, color: Colors.grey),
+                      const SizedBox(width: 7),
+                      VoteCount(movie.voteCount),
+                    ],
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

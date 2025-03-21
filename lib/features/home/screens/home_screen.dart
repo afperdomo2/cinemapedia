@@ -1,9 +1,9 @@
 import 'package:cinemapedia/common/widgets/custom_appbar.dart';
-import 'package:cinemapedia/features/home/widgets/full_screen_loader.dart';
 import 'package:cinemapedia/config/helpers/human_formatter.dart';
 import 'package:cinemapedia/features/home/providers/is_movies_loading_provider.dart';
 import 'package:cinemapedia/features/home/providers/movies_provider.dart';
 import 'package:cinemapedia/features/home/providers/movies_slideshow_provider.dart';
+import 'package:cinemapedia/features/home/widgets/full_screen_loader.dart';
 import 'package:cinemapedia/features/home/widgets/movies_horizontal_listview.dart';
 import 'package:cinemapedia/features/home/widgets/movies_slideshow.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +50,6 @@ class __HomeViewState extends ConsumerState<_HomeView> {
 
     final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
     final moviesSlideShow = ref.watch(moviewsSlideShowProvider);
-    final popularMovies = ref.watch(popularMoviesProvider);
     final topRatedMovies = ref.watch(topRatedMoviesProvider);
     final upcomingMovies = ref.watch(upcomingMoviesProvider);
 
@@ -81,11 +80,6 @@ class __HomeViewState extends ConsumerState<_HomeView> {
                   title: 'En cartelera',
                   subtitle: HumanFormatter.currentDate(DateTime.now()),
                   loadNextPage: () => ref.read(nowPlayingMoviesProvider.notifier).loadNextPage(),
-                ),
-                MoviesHorizontalListView(
-                  popularMovies,
-                  title: 'Populares',
-                  loadNextPage: () => ref.read(popularMoviesProvider.notifier).loadNextPage(),
                 ),
                 MoviesHorizontalListView(
                   topRatedMovies,

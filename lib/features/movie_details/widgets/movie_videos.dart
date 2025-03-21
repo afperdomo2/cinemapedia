@@ -11,7 +11,7 @@ class MovieVideos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (videos.isEmpty) {
-      return const Center(child: Text('No hay videos disponibles'));
+      return const SizedBox.shrink();
     }
 
     return Column(

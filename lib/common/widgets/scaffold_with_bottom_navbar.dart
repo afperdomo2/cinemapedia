@@ -12,11 +12,14 @@ class ScaffoldWithBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         elevation: 0,
         currentIndex: navigationShell.currentIndex,
+        selectedItemColor: colors.primary,
         onTap: (index) => _onTap(context, index),
         items: const [
           BottomNavigationBarItem(label: 'Inicio', icon: Icon(Icons.home_max)),

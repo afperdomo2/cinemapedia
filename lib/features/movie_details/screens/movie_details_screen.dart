@@ -65,6 +65,8 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
                         MovieResume(movie: movie),
                         MovieGenres(movie: movie),
                         MovieActors(actors: actors),
+
+                        /// Videos
                         videosFromMovieFuture.when(
                           error: (error, stackTrace) {
                             return const Center(child: Text('No se pudo cargar los videos'));
@@ -73,11 +75,17 @@ class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
                           data: (videos) => MovieVideos(videos),
                         ),
                         const SizedBox(height: 7),
+
+                        /// Recomendaciones
                         similarMoviesFuture.when(
                           error: errorSimilarMovies,
                           loading: loadingFuture,
                           data: (movies) {
-                            return MoviesHorizontalListView(movies, title: 'Recomendaciones');
+                            if (movies.isEmpty) return const SizedBox.shrink();
+                            return Container(
+                              margin: const EdgeInsetsDirectional.only(bottom: 0),
+                              child: MoviesHorizontalListView(movies, title: 'Recomendaciones'),
+                            );
                           },
                         ),
                         const SizedBox(height: 50),

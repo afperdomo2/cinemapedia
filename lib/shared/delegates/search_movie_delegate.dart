@@ -187,8 +187,8 @@ class _MovieItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   /// Title
-                  Text(movie.title, style: textStyles.titleLarge!.copyWith(fontSize: 20)),
-                  const SizedBox(height: 5),
+                  Text(movie.title, style: textStyles.titleLarge!.copyWith(fontSize: 18)),
+                  const SizedBox(height: 3),
 
                   /// Overview
                   Text(
@@ -196,7 +196,7 @@ class _MovieItem extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
 
                   /// Release date, rating and vote count
                   Row(

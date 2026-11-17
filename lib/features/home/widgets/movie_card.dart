@@ -6,14 +6,16 @@ import 'package:flutter/material.dart';
 class MovieCard extends StatelessWidget {
   final Movie movie;
 
-  const MovieCard(this.movie, {super.key});
+  /// Ancho de la imagen; alto se calcula con la proporción original 135×220.
+  final double imageWidth;
+
+  const MovieCard(this.movie, {super.key, this.imageWidth = 135.0});
 
   @override
   Widget build(BuildContext context) {
     final textStyles = Theme.of(context).textTheme;
 
-    const imageWidth = 135.0;
-    const imageHeight = 220.0;
+    final imageHeight = imageWidth * 220 / 135;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),

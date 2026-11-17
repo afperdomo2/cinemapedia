@@ -1,3 +1,4 @@
+import 'package:cinemapedia/config/responsive.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/shared/widgets/movie_poster_link.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,7 @@ class _MoviesMasonryState extends State<MoviesMasonry> {
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: MasonryGridView.count(
         controller: scrollController,
-        crossAxisCount: 3,
+        crossAxisCount: Responsive.posterColumns(MediaQuery.sizeOf(context).width),
         mainAxisSpacing: 5,
         crossAxisSpacing: 5,
         itemCount: widget.movies.length,

@@ -30,7 +30,8 @@ class MovieDetailsAppBar extends ConsumerWidget {
 
     return SliverAppBar(
       backgroundColor: Colors.black,
-      expandedHeight: size.height * 0.7,
+      // En pantallas altas (tablet) se acota para no ocupar toda la pantalla
+      expandedHeight: (size.height * 0.7).clamp(300.0, 600.0).toDouble(),
       foregroundColor: Colors.white,
       actions: [
         IconButton(

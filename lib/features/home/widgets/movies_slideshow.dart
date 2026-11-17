@@ -1,4 +1,5 @@
 import 'package:card_swiper/card_swiper.dart';
+import 'package:cinemapedia/config/responsive.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/features/home/widgets/movie_slide.dart';
 import 'package:flutter/material.dart';
@@ -15,9 +16,10 @@ class MoviesSlideShow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final height = Responsive.slideshowHeight(MediaQuery.sizeOf(context).width);
 
     return SizedBox(
-      height: 210,
+      height: height,
       width: double.infinity,
       child: Swiper(
         viewportFraction: 0.8, // 80% de la pantalla

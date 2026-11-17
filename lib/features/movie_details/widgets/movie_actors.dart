@@ -1,4 +1,5 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:cinemapedia/config/responsive.dart';
 import 'package:cinemapedia/domain/entities/actor.dart';
 import 'package:flutter/material.dart';
 
@@ -9,11 +10,12 @@ class MovieActors extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const imageHeight = 180.0;
-    const imageWidth = 135.0;
+    // En tablets/escritorio las fichas crecen manteniendo la proporción 135×180
+    final imageWidth = Responsive.posterCardWidth(MediaQuery.sizeOf(context).width);
+    final imageHeight = imageWidth * 4 / 3;
 
     return SizedBox(
-      height: 270,
+      height: imageHeight + 90,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: actors.length,

@@ -14,8 +14,6 @@ class MoviePosterLink extends StatelessWidget {
   Widget build(BuildContext context) {
     final random = Random();
 
-    const imageHeight = 200.0;
-
     return FadeInUp(
       from: random.nextInt(100) + 80,
       delay: Duration(milliseconds: random.nextInt(450) + 0),
@@ -23,11 +21,14 @@ class MoviePosterLink extends StatelessWidget {
         onTap: () => context.push('/movie/${movie.id}'),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
-          child: FadeInImage(
-            fit: BoxFit.cover,
-            height: imageHeight,
-            placeholder: const AssetImage('assets/loaders/bottle-loader.gif'),
-            image: NetworkImage(movie.posterPath),
+          child: AspectRatio(
+            // Proporción de póster (2:3) para que escale con las columnas del masonry
+            aspectRatio: 2 / 3,
+            child: FadeInImage(
+              fit: BoxFit.cover,
+              placeholder: const AssetImage('assets/loaders/bottle-loader.gif'),
+              image: NetworkImage(movie.posterPath),
+            ),
           ),
         ),
       ),

@@ -14,6 +14,9 @@ class MovieResume extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     final textStyles = Theme.of(context).textTheme;
 
+    // En tablets/escritorio el póster se acota para no crecer linealmente
+    final posterWidth = (size.width * 0.3).clamp(110.0, 240.0).toDouble();
+
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Row(
@@ -22,13 +25,12 @@ class MovieResume extends StatelessWidget {
           /// Poster
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: Image.network(movie.posterPath, width: size.width * 0.3, fit: BoxFit.cover),
+            child: Image.network(movie.posterPath, width: posterWidth, fit: BoxFit.cover),
           ),
           const SizedBox(width: 10),
 
           /// Descripción
-          SizedBox(
-            width: (size.width - 45) * 0.7,
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

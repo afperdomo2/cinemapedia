@@ -29,6 +29,12 @@ dev_dependencies:
     sdk: flutter
   isar_generator: ^3.1.0+1
 
+# Copia local parcheada de card_swiper 3.0.1 (fix del error de precisión al
+# redimensionar ventanas en desktop). Ver packages/card_swiper/PATCHES.md
+dependency_overrides:
+  card_swiper:
+    path: packages/card_swiper
+
 flutter:
   uses-material-design: true
   assets:

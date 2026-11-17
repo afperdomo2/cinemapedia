@@ -74,6 +74,9 @@ doc/api/
 # dotenv environment variables file
 .env
 
+# ...pero el ejemplo sí se versiona
+!.env.example
+
 ### Flutter ###
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -226,3 +229,5 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,linux,flutter,dart,android,visualstudiocode
+
+.vscode

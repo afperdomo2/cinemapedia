@@ -1,4 +1,5 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:cinemapedia/config/responsive.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/features/home/widgets/movie_card.dart';
 import 'package:flutter/material.dart';
@@ -49,8 +50,12 @@ class _MoviesHorizontalListViewState extends State<MoviesHorizontalListView> {
 
   @override
   Widget build(BuildContext context) {
+    // En tablets/escritorio las tarjetas crecen manteniendo la proporción
+    final cardWidth = Responsive.posterCardWidth(MediaQuery.sizeOf(context).width);
+    final listHeight = cardWidth * 220 / 135 + 130; // imagen + rating + título + márgenes
+
     return SizedBox(
-      height: 350,
+      height: listHeight,
       child: Column(
         children: [
           if (widget.title != null || widget.subtitle != null)
@@ -67,7 +72,7 @@ class _MoviesHorizontalListViewState extends State<MoviesHorizontalListView> {
                     context.push('/movie/${widget.movies[index].id}');
                   },
                   child: FadeInRight(
-                    child: MovieCard(widget.movies[index]),
+                    child: MovieCard(widget.movies[index], imageWidth: cardWidth),
                   ),
                 );
               },

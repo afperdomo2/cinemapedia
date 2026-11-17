@@ -161,6 +161,9 @@ class _MovieItem extends StatelessWidget {
     final textStyles = Theme.of(context).textTheme;
     final size = MediaQuery.of(context).size;
 
+    // En tablets/escritorio el póster se acota y el texto usa el ancho restante
+    final posterWidth = (size.width * 0.2).clamp(70.0, 160.0).toDouble();
+
     return FadeIn(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
@@ -172,8 +175,8 @@ class _MovieItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               child: FadeInImage(
                 placeholder: const AssetImage('assets/loaders/bottle-loader.gif'),
-                width: size.width * 0.2,
-                height: size.width * 0.3,
+                width: posterWidth,
+                height: posterWidth * 3 / 2,
                 fit: BoxFit.cover,
                 image: NetworkImage(movie.posterPath),
               ),
@@ -181,8 +184,7 @@ class _MovieItem extends StatelessWidget {
 
             /// Title and overview
             const SizedBox(width: 10),
-            SizedBox(
-              width: size.width * 0.7,
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

@@ -1,23 +1,17 @@
-import 'package:cinemapedia/domain/entities/actor.dart';
-import 'package:cinemapedia/domain/entities/movie.dart';
-import 'package:cinemapedia/domain/entities/video.dart';
+import 'package:cinemapedia/domain/entities/movie_details.dart';
+import 'package:cinemapedia/domain/entities/movie_page.dart';
 
 abstract class MovieRepository {
-  Future<List<Movie>> getNowPlaying({int page = 1});
+  Future<MoviePage> getNowPlaying({int page = 1});
 
-  Future<List<Movie>> getPopular({int page = 1});
+  Future<MoviePage> getPopular({int page = 1});
 
-  Future<List<Movie>> getTopRated({int page = 1});
+  Future<MoviePage> getTopRated({int page = 1});
 
-  Future<List<Movie>> getUpcoming({int page = 1});
+  Future<MoviePage> getUpcoming({int page = 1});
 
-  Future<Movie> getMovieDetails(String movieId);
+  /// Detalles completos de una película: datos, actores, videos y similares.
+  Future<MovieDetails> getMovieDetails(int movieId);
 
-  Future<List<Actor>> getMovieActors(String movieId);
-
-  Future<List<Movie>> searchMovies(String query, {int page = 1});
-
-  Future<List<Movie>> getSimilarMovies(String movieId, {int page = 1});
-
-  Future<List<Video>> getMovieYoutubeVideos(String movieId);
+  Future<MoviePage> searchMovies(String query, {int page = 1});
 }

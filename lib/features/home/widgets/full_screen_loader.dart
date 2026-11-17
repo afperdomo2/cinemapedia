@@ -13,13 +13,11 @@ class FullScreenLoader extends StatelessWidget {
     'Esto está tardando más de lo esperado...',
   ];
 
-  /// Crea un stream que emite un mensaje diferente cada segundo.
-  Stream<String> get messageStream {
-    return Stream.periodic(
-      const Duration(milliseconds: 1500),
-      (i) => messages[i % messages.length],
-    ).take(messages.length);
-  }
+  /// Se crea una sola vez para que los mensajes no se reinicien en cada build.
+  late final Stream<String> messageStream = Stream.periodic(
+    const Duration(milliseconds: 1500),
+    (i) => messages[i % messages.length],
+  ).take(messages.length);
 
   FullScreenLoader({super.key});
 
@@ -33,7 +31,8 @@ class FullScreenLoader extends StatelessWidget {
           const SizedBox(height: 20),
           StreamBuilder(
             stream: messageStream,
-            builder: (context, snapshot) => Text(snapshot.data ?? 'Cargando palomitas...'),
+            builder: (context, snapshot) =>
+                Text(snapshot.data ?? 'Cargando palomitas...'),
           ),
         ],
       ),

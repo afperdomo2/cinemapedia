@@ -9,14 +9,15 @@ class VoteCount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var textStyles = Theme.of(context).textTheme;
+    final colors = Theme.of(context).colorScheme;
 
     return Row(
       children: [
-        const Icon(Icons.people, size: 14, color: Colors.grey),
+        Icon(Icons.people, size: 14, color: colors.onSurfaceVariant),
         const SizedBox(width: 3),
         Text(
           HumanFormatter.largeNumber(voteCount.toDouble()),
-          style: textStyles.bodySmall?.copyWith(color: Colors.grey),
+          style: textStyles.bodySmall?.copyWith(color: colors.onSurfaceVariant),
         ),
       ],
     );

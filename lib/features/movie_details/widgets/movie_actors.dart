@@ -1,6 +1,6 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/config/responsive.dart';
 import 'package:cinemapedia/domain/entities/actor.dart';
+import 'package:cinemapedia/shared/widgets/tmdb_image.dart';
 import 'package:flutter/material.dart';
 
 class MovieActors extends StatelessWidget {
@@ -11,7 +11,8 @@ class MovieActors extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // En tablets/escritorio las fichas crecen manteniendo la proporción 135×180
-    final imageWidth = Responsive.posterCardWidth(MediaQuery.sizeOf(context).width);
+    final imageWidth =
+        Responsive.posterCardWidth(MediaQuery.sizeOf(context).width);
     final imageHeight = imageWidth * 4 / 3;
 
     return SizedBox(
@@ -28,25 +29,27 @@ class MovieActors extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 /// Image
-                FadeInRight(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: FadeInImage(
-                      placeholder: const AssetImage('assets/loaders/bottle-loader.gif'),
-                      width: imageWidth,
-                      height: imageHeight,
-                      fit: BoxFit.cover,
-                      image: NetworkImage(actor.profilePath),
-                    ),
-                  ),
+                TmdbImage(
+                  actor.profilePath,
+                  size: TmdbImageSize.w185,
+                  width: imageWidth,
+                  height: imageHeight,
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 const SizedBox(height: 5),
 
                 /// Name
-                Text(actor.name, maxLines: 2, style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  actor.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 Text(
                   actor.character ?? '',
-                  style: TextStyle(color: Colors.grey[600], overflow: TextOverflow.ellipsis),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: Colors.grey[600]),
                 ),
               ],
             ),

@@ -2,35 +2,23 @@ import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/providers/repositories/movie_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// StateProvider
-///
-/// Propósito: Se utiliza para gestionar un estado simple y mutable. Es adecuado para
-/// estados que no requieren lógica compleja.
-///
-/// Uso: Proporciona un estado que puede ser leído y actualizado directamente.
-///
+/// Última consulta escrita en el buscador (para reabrirla con contexto).
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
-final searchedMoviesProvider = StateNotifierProvider<SearchedMoviesNotifier, List<Movie>>((ref) {
-  final searchMovies = ref.read(movieRepositoryProvider).searchMovies;
-  return SearchedMoviesNotifier(searchMovies: searchMovies, ref: ref);
-});
+/// Últimos resultados de búsqueda, para sembrar el delegate al reabrirlo.
+final searchedMoviesProvider =
+    NotifierProvider<SearchedMoviesNotifier, List<Movie>>(
+  SearchedMoviesNotifier.new,
+);
 
-typedef SearchMoviesCallback = Future<List<Movie>> Function(String query);
-
-class SearchedMoviesNotifier extends StateNotifier<List<Movie>> {
-  final SearchMoviesCallback searchMovies;
-  final Ref ref;
-
-  SearchedMoviesNotifier({
-    required this.searchMovies,
-    required this.ref,
-  }) : super([]);
+class SearchedMoviesNotifier extends Notifier<List<Movie>> {
+  @override
+  List<Movie> build() => const [];
 
   Future<List<Movie>> searchMoviesByQuery(String query) async {
-    final List<Movie> movies = await searchMovies(query);
+    final result = await ref.read(movieRepositoryProvider).searchMovies(query);
     ref.read(searchQueryProvider.notifier).update((state) => query);
-    state = movies;
-    return movies;
+    state = result.movies;
+    return result.movies;
   }
 }

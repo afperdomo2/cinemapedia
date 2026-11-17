@@ -9,106 +9,160 @@ import 'package:cinemapedia/data/models/tmdb/movie_videos_tmdb_response.dart';
 import 'package:cinemapedia/domain/datasources/movie_datasource.dart';
 import 'package:cinemapedia/domain/entities/actor.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
+import 'package:cinemapedia/domain/entities/movie_details.dart';
+import 'package:cinemapedia/domain/entities/movie_page.dart';
 import 'package:cinemapedia/domain/entities/video.dart';
+import 'package:cinemapedia/domain/exceptions/fetch_exception.dart';
 import 'package:dio/dio.dart';
 
 class MovieTMDbDataSource extends MovieDataSource {
-  final dio = Dio(BaseOptions(
-    baseUrl: 'https://api.themoviedb.org/3',
-    queryParameters: {
-      'api_key': Enviroment.theMovieDbApiKey,
-      'language': 'es-MX',
-    },
-  ));
+  MovieTMDbDataSource({Dio? dioClient}) : dio = dioClient ?? _createDio();
 
-  List<Movie> _mapResponseToMovies(Map<String, dynamic> responseData) {
-    final List<Movie> movies = MovieListTMDbResponse.fromJson(responseData)
-        .results
-        .map((movie) => MovieMapper.movieTMDbResponseToEntity(movie))
-        .toList();
-    return movies;
+  final Dio dio;
+
+  static Dio _createDio() {
+    return Dio(BaseOptions(
+      baseUrl: 'https://api.themoviedb.org/3',
+      queryParameters: {
+        'api_key': Environment.theMovieDbApiKey,
+        'language': 'es-MX',
+      },
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    ));
   }
 
-  @override
-  Future<List<Movie>> getNowPlaying({int page = 1}) async {
-    final response = await dio.get('/movie/now_playing', queryParameters: {
-      'page': page,
-    });
-    return _mapResponseToMovies(response.data);
-  }
-
-  @override
-  Future<List<Movie>> getPopular({int page = 1}) async {
-    final response = await dio.get('/movie/popular', queryParameters: {
-      'page': page,
-    });
-    return _mapResponseToMovies(response.data);
-  }
-
-  @override
-  Future<List<Movie>> getTopRated({int page = 1}) async {
-    final response = await dio.get('/movie/top_rated', queryParameters: {
-      'page': page,
-    });
-    return _mapResponseToMovies(response.data);
-  }
-
-  @override
-  Future<List<Movie>> getUpcoming({int page = 1}) async {
-    final response = await dio.get('/movie/upcoming', queryParameters: {
-      'page': page,
-    });
-    return _mapResponseToMovies(response.data);
-  }
-
-  @override
-  Future<Movie> getMovieDetails(String movieId) async {
-    final response = await dio.get('/movie/$movieId');
-    if (response.statusCode != 200) {
-      throw Exception('Error al obtener los detalles de la película $movieId');
+  /// Envuelve cada request para traducir errores de red/servidor a un
+  /// [FetchException] de dominio, en vez de filtrar `DioException` a la UI.
+  Future<T> _request<T>(Future<T> Function() call) async {
+    try {
+      return await call();
+    } on DioException catch (error) {
+      throw FetchException(_messageFor(error), cause: error);
+    } catch (error) {
+      throw FetchException('Ocurrió un error inesperado', cause: error);
     }
-    final movieDetails = MovieDetailsTMDbResponse.fromJson(response.data);
-    return MovieMapper.movieDetailsTMDbResponseToEntity(movieDetails);
   }
 
-  @override
-  Future<List<Actor>> getMovieActors(String movieId) async {
-    final response = await dio.get('/movie/$movieId/credits');
-    if (response.statusCode != 200) {
-      throw Exception('Error al obtener los actores de la película $movieId');
+  String _messageFor(DioException error) {
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return 'La conexión tardó demasiado. Revisá tu internet e intentá de nuevo.';
+      case DioExceptionType.connectionError:
+        return 'No se pudo conectar con el servidor. Revisá tu conexión a internet.';
+      case DioExceptionType.badResponse:
+        final status = error.response?.statusCode;
+        if (status == 404) return 'No se encontró lo que buscabas.';
+        if (status == 401) return 'La API key de TMDB no es válida.';
+        if (status != null && status >= 500) {
+          return 'El servidor de TMDB está teniendo problemas. Intentá de nuevo.';
+        }
+        return 'No se pudo obtener la información.';
+      case DioExceptionType.cancel:
+        return 'La petición fue cancelada.';
+      case DioExceptionType.badCertificate:
+      case DioExceptionType.transformTimeout:
+      case DioExceptionType.unknown:
+        return 'No se pudo conectar con el servidor. Revisá tu conexión a internet.';
     }
-    final castReponse = MovieCreditsTMDbResponse.fromJson(response.data);
-    return castReponse.cast.map((cast) => ActorMapper.castToEntity(cast)).toList();
   }
 
-  @override
-  Future<List<Movie>> searchMovies(String query, {int page = 1}) async {
-    if (query.isEmpty) {
-      return [];
-    }
-    final response = await dio.get('/search/movie', queryParameters: {
-      'query': query,
-      'page': page,
+  Future<Map<String, dynamic>> _getJson(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) {
+    return _request(() async {
+      final response = await dio.get(path, queryParameters: queryParameters);
+      return response.data as Map<String, dynamic>;
     });
-    // print('Cantidad de registros: ${response.data['results'].length}');
-    return _mapResponseToMovies(response.data);
   }
 
-  @override
-  Future<List<Movie>> getSimilarMovies(String movieId, {int page = 1}) async {
-    final response = await dio.get('/movie/$movieId/similar', queryParameters: {
+  Future<MoviePage> _getMoviePage(String path,
+      {int page = 1, String? query}) async {
+    final data = await _getJson(path, queryParameters: {
       'page': page,
+      if (query != null) 'query': query,
     });
-    return _mapResponseToMovies(response.data);
+    final response = MovieListTMDbResponse.fromJson(data);
+    return MoviePage(
+      movies:
+          response.results.map(MovieMapper.movieTMDbResponseToEntity).toList(),
+      page: response.page,
+      totalPages: response.totalPages,
+    );
   }
 
   @override
-  Future<List<Video>> getMovieYoutubeVideos(String movieId) async {
-    final response = await dio.get('/movie/$movieId/videos');
-    final videos = MovieVideosTMDbResponse.fromJson(response.data);
-    return videos.results
-        .where((moviedbVideo) => moviedbVideo.site == 'YouTube')
-        .map<Video>((moviedbVideo) => VideoMapper.movieVideoTMDbResponseToEntity(moviedbVideo))
-        .toList();
+  Future<MoviePage> getNowPlaying({int page = 1}) {
+    return _getMoviePage('/movie/now_playing', page: page);
+  }
+
+  @override
+  Future<MoviePage> getPopular({int page = 1}) {
+    return _getMoviePage('/movie/popular', page: page);
+  }
+
+  @override
+  Future<MoviePage> getTopRated({int page = 1}) {
+    return _getMoviePage('/movie/top_rated', page: page);
+  }
+
+  @override
+  Future<MoviePage> getUpcoming({int page = 1}) {
+    return _getMoviePage('/movie/upcoming', page: page);
+  }
+
+  @override
+  Future<MoviePage> searchMovies(String query, {int page = 1}) {
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) return Future.value(MoviePage.empty);
+    return _getMoviePage('/search/movie', page: page, query: trimmed);
+  }
+
+  @override
+  Future<MovieDetails> getMovieDetails(int movieId) async {
+    final data = await _getJson(
+      '/movie/$movieId',
+      // Una sola petición en lugar de cuatro.
+      queryParameters: {'append_to_response': 'credits,videos,similar'},
+    );
+
+    final movie = MovieMapper.movieDetailsTMDbResponseToEntity(
+      MovieDetailsTMDbResponse.fromJson(data),
+    );
+
+    final creditsJson = data['credits'];
+    final List<Actor> actors = (creditsJson is Map<String, dynamic>)
+        ? MovieCreditsTMDbResponse.fromJson(creditsJson)
+            .cast
+            .map(ActorMapper.castToEntity)
+            .toList()
+        : <Actor>[];
+
+    final videosJson = data['videos'];
+    final List<Video> videos = (videosJson is Map<String, dynamic>)
+        ? MovieVideosTMDbResponse.fromJson(videosJson)
+            .results
+            .where((video) => video.site == 'YouTube' && video.key.isNotEmpty)
+            .map(VideoMapper.movieVideoTMDbResponseToEntity)
+            .toList()
+        : <Video>[];
+
+    final similarJson = data['similar'];
+    final List<Movie> similarMovies = (similarJson is Map<String, dynamic>)
+        ? MovieListTMDbResponse.fromJson(similarJson)
+            .results
+            .map(MovieMapper.movieTMDbResponseToEntity)
+            .toList()
+        : <Movie>[];
+
+    return MovieDetails(
+      movie: movie,
+      actors: actors,
+      videos: videos,
+      similarMovies: similarMovies,
+    );
   }
 }

@@ -2,6 +2,7 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:cinemapedia/config/responsive.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/features/home/widgets/movie_slide.dart';
+import 'package:cinemapedia/features/movie_details/screens/movie_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -31,15 +32,24 @@ class MoviesSlideShow extends StatelessWidget {
         itemBuilder: (context, index) {
           final movie = movies[index];
           return GestureDetector(
-            onTap: () => context.push('/movie/${movie.id}'),
-            child: MovieSlide(movie),
+            onTap: () => context.pushNamed(
+              MovieDetailsScreen.name,
+              pathParameters: {'movieId': '${movie.id}'},
+            ),
+            // El hero solo se usa cuando hay más de una slide: en modo loop el
+            // Swiper puede construir dos veces una misma slide cuando hay una
+            // sola película y los Hero de igual tag colisionan.
+            child: MovieSlide(
+              movie,
+              heroTag: movies.length > 1 ? 'backdrop-${movie.id}' : null,
+            ),
           );
         },
       ),
     );
   }
 
-  SwiperPagination _buildPaginationDots(colors) {
+  SwiperPagination _buildPaginationDots(ColorScheme colors) {
     return SwiperPagination(
       margin: const EdgeInsets.only(top: 10),
       alignment: Alignment.bottomCenter,

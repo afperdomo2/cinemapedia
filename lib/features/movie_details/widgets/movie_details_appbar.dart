@@ -1,32 +1,45 @@
-import 'package:animate_do/animate_do.dart';
+import 'dart:async';
+
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/features/favorites/providers/favorite_movies_provider.dart';
-import 'package:cinemapedia/providers/repositories/local_storage_repository_provider.dart';
+import 'package:cinemapedia/shared/widgets/tmdb_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-///
-/// Provider para saber si una película es favorita
-///
-/// FutureProvider: Proveedor de un valor futuro
-/// autoDispose: Se elimina automáticamente cuando no se usa
-/// family: Proveedor de una familia de valores
-///
-final isFavoriteMovieProvider = FutureProvider.autoDispose.family<bool, int>((ref, movieId) {
-  final localStorageProvider = ref.watch(localStorageRepositoryProvider);
-  return localStorageProvider.isFavoriteMovie(movieId);
-});
 
 class MovieDetailsAppBar extends ConsumerWidget {
   final Movie movie;
 
   const MovieDetailsAppBar({super.key, required this.movie});
 
+  Future<void> _toggleFavorite(BuildContext context, WidgetRef ref) async {
+    final isFavorite = await ref
+        .read(favoriteMoviesProvider.notifier)
+        .toggleFavoriteMovie(movie);
+
+    if (!context.mounted) return;
+
+    unawaited(HapticFeedback.lightImpact());
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            isFavorite
+                ? 'Agregada a favoritos: ${movie.title}'
+                : 'Eliminada de favoritos: ${movie.title}',
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavoriteMovie = ref.watch(isFavoriteMovieProvider(movie.id));
-
     final size = MediaQuery.of(context).size;
+
+    final isFavorite = isFavoriteMovie.valueOrNull ?? false;
 
     return SliverAppBar(
       backgroundColor: Colors.black,
@@ -35,17 +48,11 @@ class MovieDetailsAppBar extends ConsumerWidget {
       foregroundColor: Colors.white,
       actions: [
         IconButton(
-          onPressed: () async {
-            await ref.read(favoriteMoviesProvider.notifier).toggleFavoriteMovie(movie);
-            // Invalidar el provider para que se vuelva a cargar
-            ref.invalidate(isFavoriteMovieProvider(movie.id));
-          },
-          icon: isFavoriteMovie.when(
-            data: (isFavorite) => isFavorite
-                ? const Icon(Icons.favorite, color: Colors.red)
-                : const Icon(Icons.favorite_outline),
-            loading: () => const CircularProgressIndicator(strokeWidth: 2),
-            error: (error, _) => const Icon(Icons.favorite_outline),
+          tooltip: isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos',
+          onPressed: () => _toggleFavorite(context, ref),
+          icon: Icon(
+            isFavorite ? Icons.favorite : Icons.favorite_outline,
+            color: isFavorite ? Colors.red : null,
           ),
         ),
       ],
@@ -54,21 +61,16 @@ class MovieDetailsAppBar extends ConsumerWidget {
       flexibleSpace: FlexibleSpaceBar(
         centerTitle: true,
         titlePadding: const EdgeInsets.fromLTRB(5, 0, 5, 10),
-        // title: Text(
-        //   movie.title,
-        //   textAlign: TextAlign.center,
-        //   style: const TextStyle(fontSize: 24, color: Colors.white),
-        // ),
         background: Stack(
           children: [
-            // Poster
-            SizedBox.expand(
-              child: Image.network(
-                movie.posterPath,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  return (loadingProgress == null) ? FadeIn(child: child) : const SizedBox();
-                },
+            // Backdrop (hero desde el slideshow de inicio)
+            Positioned.fill(
+              child: Hero(
+                tag: 'backdrop-${movie.id}',
+                child: TmdbImage(
+                  movie.backdropPath,
+                  size: TmdbImageSize.w1280,
+                ),
               ),
             ),
 
@@ -120,7 +122,8 @@ class _CustomGradient extends StatelessWidget {
     return SizedBox.expand(
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: LinearGradient(begin: begin, end: end, stops: stops, colors: colors),
+          gradient: LinearGradient(
+              begin: begin, end: end, stops: stops, colors: colors),
         ),
       ),
     );

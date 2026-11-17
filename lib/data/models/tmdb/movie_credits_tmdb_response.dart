@@ -9,10 +9,13 @@ class MovieCreditsTMDbResponse {
     required this.crew,
   });
 
-  factory MovieCreditsTMDbResponse.fromJson(Map<String, dynamic> json) => MovieCreditsTMDbResponse(
-        id: json['id'],
-        cast: List<Cast>.from(json['cast'].map((x) => Cast.fromJson(x))),
-        crew: List<Cast>.from(json['crew'].map((x) => Cast.fromJson(x))),
+  factory MovieCreditsTMDbResponse.fromJson(Map<String, dynamic> json) =>
+      MovieCreditsTMDbResponse(
+        id: json['id'] ?? 0,
+        cast: List<Cast>.from(
+            (json['cast'] ?? const []).map((x) => Cast.fromJson(x))),
+        crew: List<Cast>.from(
+            (json['crew'] ?? const []).map((x) => Cast.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -56,17 +59,17 @@ class Cast {
   });
 
   factory Cast.fromJson(Map<String, dynamic> json) => Cast(
-        adult: json['adult'],
-        gender: json['gender'],
+        adult: json['adult'] ?? false,
+        gender: json['gender'] ?? 0,
         id: json['id'],
-        knownForDepartment: json['known_for_department']!,
-        name: json['name'],
-        originalName: json['original_name'],
-        popularity: json['popularity']?.toDouble(),
+        knownForDepartment: json['known_for_department'] ?? '',
+        name: json['name'] ?? '',
+        originalName: json['original_name'] ?? '',
+        popularity: json['popularity']?.toDouble() ?? 0,
         profilePath: json['profile_path'],
         castId: json['cast_id'],
         character: json['character'],
-        creditId: json['credit_id'],
+        creditId: json['credit_id'] ?? '',
         order: json['order'],
         department: json['department'],
         job: json['job'],

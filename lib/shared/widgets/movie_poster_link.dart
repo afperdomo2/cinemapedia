@@ -1,10 +1,10 @@
-import 'dart:math';
-
-import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
+import 'package:cinemapedia/features/movie_details/screens/movie_details_screen.dart';
+import 'package:cinemapedia/shared/widgets/tmdb_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Póster navegable a los detalles de la película.
 class MoviePosterLink extends StatelessWidget {
   const MoviePosterLink(this.movie, {super.key});
 
@@ -12,24 +12,19 @@ class MoviePosterLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final random = Random();
-
-    return FadeInUp(
-      from: random.nextInt(100) + 80,
-      delay: Duration(milliseconds: random.nextInt(450) + 0),
-      child: GestureDetector(
-        onTap: () => context.push('/movie/${movie.id}'),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: AspectRatio(
-            // Proporción de póster (2:3) para que escale con las columnas del masonry
-            aspectRatio: 2 / 3,
-            child: FadeInImage(
-              fit: BoxFit.cover,
-              placeholder: const AssetImage('assets/loaders/bottle-loader.gif'),
-              image: NetworkImage(movie.posterPath),
-            ),
-          ),
+    return Semantics(
+      button: true,
+      label: 'Ver detalles de ${movie.title}',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => context.pushNamed(
+          MovieDetailsScreen.name,
+          pathParameters: {'movieId': '${movie.id}'},
+        ),
+        child: TmdbImage(
+          movie.posterPath,
+          size: TmdbImageSize.w342,
+          borderRadius: BorderRadius.circular(16),
         ),
       ),
     );

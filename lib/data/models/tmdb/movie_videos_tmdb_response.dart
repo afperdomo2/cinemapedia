@@ -7,10 +7,11 @@ class MovieVideosTMDbResponse {
   final int id;
   final List<MovieVideoTMDbResponse> results;
 
-  factory MovieVideosTMDbResponse.fromJson(Map<String, dynamic> json) => MovieVideosTMDbResponse(
-        id: json['id'],
-        results: List<MovieVideoTMDbResponse>.from(
-            json['results'].map((x) => MovieVideoTMDbResponse.fromJson(x))),
+  factory MovieVideosTMDbResponse.fromJson(Map<String, dynamic> json) =>
+      MovieVideosTMDbResponse(
+        id: json['id'] ?? 0,
+        results: List<MovieVideoTMDbResponse>.from((json['results'] ?? const [])
+            .map((x) => MovieVideoTMDbResponse.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -44,17 +45,19 @@ class MovieVideoTMDbResponse {
   final DateTime publishedAt;
   final String id;
 
-  factory MovieVideoTMDbResponse.fromJson(Map<String, dynamic> json) => MovieVideoTMDbResponse(
-        iso6391: json['iso_639_1'],
-        iso31661: json['iso_3166_1'],
-        name: json['name'],
-        key: json['key'],
-        site: json['site'],
-        size: json['size'],
-        type: json['type'],
-        official: json['official'],
-        publishedAt: DateTime.parse(json['published_at']),
-        id: json['id'],
+  factory MovieVideoTMDbResponse.fromJson(Map<String, dynamic> json) =>
+      MovieVideoTMDbResponse(
+        iso6391: json['iso_639_1'] ?? '',
+        iso31661: json['iso_3166_1'] ?? '',
+        name: json['name'] ?? '',
+        key: json['key'] ?? '',
+        site: json['site'] ?? '',
+        size: json['size'] ?? 0,
+        type: json['type'] ?? '',
+        official: json['official'] ?? false,
+        publishedAt:
+            DateTime.tryParse(json['published_at'] ?? '') ?? DateTime.now(),
+        id: json['id']?.toString() ?? '',
       );
 
   Map<String, dynamic> toJson() => {

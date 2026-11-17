@@ -7,6 +7,7 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+    - "**/*.g.dart" # archivos generados por build_runner
     - packages/card_swiper/**
 include: package:flutter_lints/flutter.yaml
 

@@ -1,109 +1,90 @@
-import 'package:cinemapedia/domain/entities/actor.dart';
-import 'package:cinemapedia/domain/entities/movie.dart';
+import 'package:cinemapedia/domain/entities/movie_details.dart';
+import 'package:cinemapedia/domain/exceptions/fetch_exception.dart';
 import 'package:cinemapedia/features/home/widgets/movies_horizontal_listview.dart';
-import 'package:cinemapedia/features/movie_details/providers/actors_by_movie_provider.dart';
 import 'package:cinemapedia/features/movie_details/providers/movie_details_provider.dart';
-import 'package:cinemapedia/features/movie_details/providers/similar_movies_provider.dart';
-import 'package:cinemapedia/features/movie_details/providers/videos_from_movie_provider.dart';
 import 'package:cinemapedia/features/movie_details/widgets/movie_actors.dart';
 import 'package:cinemapedia/features/movie_details/widgets/movie_details_appbar.dart';
 import 'package:cinemapedia/features/movie_details/widgets/movie_genres.dart';
 import 'package:cinemapedia/features/movie_details/widgets/movie_resume.dart';
 import 'package:cinemapedia/features/movie_details/widgets/movie_videos.dart';
+import 'package:cinemapedia/common/state/movies_state.dart';
+import 'package:cinemapedia/shared/widgets/error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MovieDetailsScreen extends ConsumerStatefulWidget {
+class MovieDetailsScreen extends ConsumerWidget {
   static const name = 'movie_screen';
 
-  final String movieId;
+  final int movieId;
 
-  const MovieDetailsScreen(this.movieId, {super.key});
+  const MovieDetailsScreen({super.key, required this.movieId});
 
   @override
-  ConsumerState<MovieDetailsScreen> createState() => _MovieScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detailsAsync = ref.watch(movieDetailsProvider(movieId));
+
+    return detailsAsync.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
+      error: (error, stackTrace) => Scaffold(
+        appBar: AppBar(),
+        body: ErrorView(
+          message: error is FetchException
+              ? error.message
+              : 'No se pudo cargar la información de la película.',
+          onRetry: () => ref.invalidate(movieDetailsProvider(movieId)),
+        ),
+      ),
+      data: (details) => _MovieDetailsView(details: details),
+    );
+  }
 }
 
-class _MovieScreenState extends ConsumerState<MovieDetailsScreen> {
-  @override
-  void initState() {
-    super.initState();
-    ref.read(movieDetailsProvider.notifier).loadMovie(widget.movieId);
-    ref.read(actorByMovieProvider.notifier).loadMovieActors(widget.movieId);
-  }
+class _MovieDetailsView extends StatelessWidget {
+  const _MovieDetailsView({required this.details});
+
+  final MovieDetails details;
 
   @override
   Widget build(BuildContext context) {
-    final Movie? movie = ref.watch(movieDetailsProvider)[widget.movieId];
-    final List<Actor> actors = ref.watch(actorByMovieProvider)[widget.movieId] ?? [];
-
-    final similarMoviesFuture = ref.watch(similarMoviesProvider(widget.movieId));
-    final videosFromMovieFuture = ref.watch(videosFromMovieProvider(widget.movieId));
-
-    final bool isLoading = ref.watch(movieDetailsProvider.notifier).isLoading;
-
-    if (isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-      );
-    }
+    final movie = details.movie;
+    final similarMovies = details.similarMovies;
 
     return Scaffold(
-      body: (isLoading == false && movie != null)
-          ? CustomScrollView(
-              physics: const ClampingScrollPhysics(),
-              slivers: [
-                /// App bar con la imagen de la película
-                MovieDetailsAppBar(movie: movie),
+      body: CustomScrollView(
+        physics: const ClampingScrollPhysics(),
+        slivers: [
+          /// App bar con la imagen de la película
+          MovieDetailsAppBar(movie: movie),
 
-                /// Contenido de la película
-                SliverList(
-                  delegate: SliverChildListDelegate([
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        MovieResume(movie: movie),
-                        MovieGenres(movie: movie),
-                        MovieActors(actors: actors),
+          /// Contenido de la película
+          SliverList(
+            delegate: SliverChildListDelegate([
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  MovieResume(movie: movie),
+                  MovieGenres(movie: movie),
+                  MovieActors(actors: details.actors),
 
-                        /// Videos
-                        videosFromMovieFuture.when(
-                          error: (error, stackTrace) {
-                            return const Center(child: Text('No se pudo cargar los videos'));
-                          },
-                          loading: loadingFuture,
-                          data: (videos) => MovieVideos(videos),
-                        ),
-                        const SizedBox(height: 7),
+                  /// Videos
+                  MovieVideos(details.videos, movieId: movie.id),
+                  const SizedBox(height: 7),
 
-                        /// Recomendaciones
-                        similarMoviesFuture.when(
-                          error: errorSimilarMovies,
-                          loading: loadingFuture,
-                          data: (movies) {
-                            if (movies.isEmpty) return const SizedBox.shrink();
-                            return Container(
-                              margin: const EdgeInsetsDirectional.only(bottom: 0),
-                              child: MoviesHorizontalListView(movies, title: 'Recomendaciones'),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 50),
-                      ],
-                    )
-                  ]),
-                ),
-              ],
-            )
-          : const Center(child: Text('Movie not found')),
+                  /// Recomendaciones
+                  if (similarMovies.isNotEmpty)
+                    MoviesHorizontalListView(
+                      MoviesState(movies: similarMovies, hasMore: false),
+                      title: 'Recomendaciones',
+                    ),
+                  const SizedBox(height: 50),
+                ],
+              )
+            ]),
+          ),
+        ],
+      ),
     );
-  }
-
-  Widget loadingFuture() {
-    return const Center(child: CircularProgressIndicator(strokeWidth: 2));
-  }
-
-  Widget errorSimilarMovies(Object error, StackTrace? stackTrace) {
-    return const Center(child: Text('No se pudo cargar las Recomendaciones'));
   }
 }

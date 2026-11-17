@@ -15,14 +15,16 @@ class MovieListTMDbResponse {
     required this.totalResults,
   });
 
-  factory MovieListTMDbResponse.fromJson(Map<String, dynamic> json) => MovieListTMDbResponse(
+  factory MovieListTMDbResponse.fromJson(Map<String, dynamic> json) =>
+      MovieListTMDbResponse(
         dates: json['dates'] != null ? Dates.fromJson(json['dates']) : null,
-        page: json['page'],
+        page: json['page'] ?? 0,
         results: List<MovieTMDbResponse>.from(
-          json['results'].map((x) => MovieTMDbResponse.fromJson(x)),
+          (json['results'] ?? const [])
+              .map((x) => MovieTMDbResponse.fromJson(x)),
         ),
-        totalPages: json['total_pages'],
-        totalResults: json['total_results'],
+        totalPages: json['total_pages'] ?? 0,
+        totalResults: json['total_results'] ?? 0,
       );
 
   Map<String, dynamic> toJson() => {

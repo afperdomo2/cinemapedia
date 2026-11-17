@@ -20,7 +20,8 @@ class MovieGenres extends StatelessWidget {
                 margin: const EdgeInsets.only(right: 5),
                 child: Chip(
                   label: Text(gender),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
                 ),
               ),
             )

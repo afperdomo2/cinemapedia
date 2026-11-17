@@ -2,14 +2,10 @@ import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/features/home/providers/movies_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Provider
+/// Proveedor de las películas destacadas del slideshow (máximo 10).
 ///
-/// Propósito: Provider se utiliza para proporcionar valores que no cambian
-/// o que se calculan una vez y no necesitan ser actualizados.
-///
-/// Uso: Proporciona un valor que puede ser leído, pero no actualizado.
-///
-final moviewsSlideShowProvider = Provider<List<Movie>>((ref) {
-  final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
-  return nowPlayingMovies.isNotEmpty ? nowPlayingMovies.sublist(0, 10) : [];
+/// `take` es seguro aunque TMDB devuelva menos de 10 resultados.
+final moviesSlideShowProvider = Provider<List<Movie>>((ref) {
+  final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider).movies;
+  return nowPlayingMovies.take(10).toList();
 });

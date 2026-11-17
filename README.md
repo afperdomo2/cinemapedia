@@ -10,19 +10,31 @@ Cinemapedia es una aplicación móvil que ofrece una interfaz intuitiva y atract
 
 ### 1.2 Bibliotecas y Dependencias Utilizadas
 
-- **animate_do:** Esta biblioteca se utiliza para agregar animaciones a la aplicación.
+- **cached_network_image:** Caché en disco y memoria para las imágenes de TMDB y YouTube.
 
 - **card_swiper:** Utilizada para crear carruseles de tarjetas.
 
-- **dio:** Dio es una biblioteca de cliente HTTP que se utiliza para realizar solicitudes a las APIs.
+- **dio:** Dio es una biblioteca de cliente HTTP que se utiliza para realizar solicitudes a las APIs (con timeouts y mapeo de errores a dominio).
 
 - **flutter_dotenv:** Esta biblioteca permite cargar variables de entorno desde un archivo .env.
+
+- **flutter_localizations:** Localización de los widgets de Material al español.
 
 - **flutter_riverpod:** Riverpod es una biblioteca de gestión de estado que facilita la creación de aplicaciones escalables y mantenibles.
 
 - **go_router:** Go Router es una biblioteca de enrutamiento para Flutter que simplifica la navegación dentro de la aplicación. Permite definir rutas de manera declarativa y manejar la navegación de manera eficiente.
 
 - **intl:** La biblioteca intl se utiliza para la internacionalización y formateo de fechas y números.
+
+- **isar / isar_flutter_libs:** Base de datos local para las películas favoritas.
+
+- **shared_preferences:** Historial local de búsquedas recientes.
+
+- **youtube_player_flutter:** Reproductor de los trailers en la pantalla de videos.
+
+> **Plataformas soportadas:** Android e iOS. `isar_flutter_libs` y `youtube_player_flutter` no soportan web/desktop, por lo que esas carpetas del proyecto no son funcionales sin migrar ambas dependencias.
+
+> **Nota de seguridad:** `.env` se empaqueta dentro del binario para que la app lea la API key de TMDB. Restringí la key desde la consola de TMDB (por referrer/paquete) para evitar usos indebidos.
 
 ## 💻2. Variables de entorno
 
@@ -112,3 +124,17 @@ flutter clean
 # Ejecutar el doctor para validar si todo está correcto
 flutter doctor
 ```
+
+---
+
+## 🧪6. Tests y CI
+
+```sh
+# Ejecutar todos los tests (unitarios y de widgets)
+flutter test
+
+# Regenerar el código de Isar tras cambiar las colecciones
+dart run build_runner build --delete-conflicting-outputs
+```
+
+El workflow de GitHub Actions (`.github/workflows/ci.yml`) corre `flutter analyze`, `flutter test` y el chequeo de formato en cada push y pull request.

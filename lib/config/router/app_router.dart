@@ -1,7 +1,9 @@
 import 'package:cinemapedia/common/widgets/scaffold_with_bottom_navbar.dart';
+import 'package:cinemapedia/domain/entities/video.dart';
 import 'package:cinemapedia/features/favorites/screens/favorites_screen.dart';
 import 'package:cinemapedia/features/home/screens/home_screen.dart';
 import 'package:cinemapedia/features/movie_details/screens/movie_details_screen.dart';
+import 'package:cinemapedia/features/movie_details/screens/video_screen.dart';
 import 'package:cinemapedia/features/popular/screens/popular_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +13,7 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final appRouter = GoRouter(
   initialLocation: '/',
   navigatorKey: _rootNavigatorKey,
+  errorBuilder: (context, state) => const RouteErrorScreen(),
   routes: [
     // StatefulShellRoute para manejar las pestañas de navegación
     StatefulShellRoute.indexedStack(
@@ -25,22 +28,11 @@ final appRouter = GoRouter(
               path: '/',
               name: HomeScreen.name,
               builder: (context, state) => const HomeScreen(),
-              routes: [
-                GoRoute(
-                  path: 'movie/:movieId',
-                  name: MovieDetailsScreen.name,
-                  parentNavigatorKey: _rootNavigatorKey,
-                  builder: (context, state) {
-                    final movieId = state.pathParameters['movieId'];
-                    return MovieDetailsScreen(movieId.toString());
-                  },
-                ),
-              ],
             ),
           ],
         ),
 
-        // Branch Categories
+        // Branch Populares
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -51,7 +43,7 @@ final appRouter = GoRouter(
           ],
         ),
 
-        // Branch Favorites
+        // Branch Favoritos
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -63,5 +55,70 @@ final appRouter = GoRouter(
         ),
       ],
     ),
+
+    // Detalles y videos se muestran fuera del shell (sin barra inferior)
+    GoRoute(
+      path: '/movie/:movieId',
+      name: MovieDetailsScreen.name,
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final movieId = int.tryParse(state.pathParameters['movieId'] ?? '');
+        if (movieId == null) return const RouteErrorScreen();
+        return MovieDetailsScreen(movieId: movieId);
+      },
+      routes: [
+        GoRoute(
+          path: 'videos',
+          name: VideoScreen.name,
+          parentNavigatorKey: _rootNavigatorKey,
+          builder: (context, state) {
+            final extra = state.extra;
+            if (extra is! ({List<Video> videos, int initialIndex})) {
+              return const RouteErrorScreen();
+            }
+            return VideoScreen(
+                videos: extra.videos, initialIndex: extra.initialIndex);
+          },
+        ),
+      ],
+    ),
   ],
 );
+
+/// Pantalla de error para rutas inválidas o parámetros mal formados.
+class RouteErrorScreen extends StatelessWidget {
+  const RouteErrorScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyles = Theme.of(context).textTheme;
+
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.explore_off_outlined, size: 56),
+              const SizedBox(height: 16),
+              Text('No encontramos lo que buscabas',
+                  style: textStyles.titleMedium),
+              const SizedBox(height: 8),
+              const Text(
+                'La dirección no existe o los datos no son válidos.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              FilledButton.tonal(
+                onPressed: () => context.go('/'),
+                child: const Text('Ir al inicio'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,5 +1,6 @@
 import 'package:cinemapedia/domain/datasources/local_storage_datasource.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
+import 'package:cinemapedia/domain/entities/movie_page.dart';
 import 'package:cinemapedia/domain/repositories/local_storage_repository.dart';
 
 class LocalStorageRepositoryImpl extends LocalStorageRepository {
@@ -8,7 +9,7 @@ class LocalStorageRepositoryImpl extends LocalStorageRepository {
   LocalStorageRepositoryImpl(this.dataSource);
 
   @override
-  Future<List<Movie>> getFavoriteMovies({int page = 1, int limit = 20}) {
+  Future<MoviePage> getFavoriteMovies({int page = 1, int limit = 20}) {
     return dataSource.getFavoriteMovies(page: page, limit: limit);
   }
 
@@ -18,7 +19,7 @@ class LocalStorageRepositoryImpl extends LocalStorageRepository {
   }
 
   @override
-  Future<void> toggleFavoriteMovie(Movie movie) {
+  Future<bool> toggleFavoriteMovie(Movie movie) {
     return dataSource.toggleFavoriteMovie(movie);
   }
 }

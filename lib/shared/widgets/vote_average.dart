@@ -15,8 +15,8 @@ class VoteAverage extends StatelessWidget {
         const SizedBox(width: 2),
         Text(
           average.toStringAsFixed(1),
-          style: textStyles.bodyMedium
-              ?.copyWith(color: _getColor(average), fontWeight: FontWeight.bold),
+          style: textStyles.bodyMedium?.copyWith(
+              color: _getColor(average), fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -24,7 +24,7 @@ class VoteAverage extends StatelessWidget {
 
   Color _getColor(double value) {
     if (value <= 3) return Colors.red;
-    if (value <= 6) return Colors.orange[800]!;
+    if (value <= 6) return Colors.orange;
     return Colors.amber;
   }
 }

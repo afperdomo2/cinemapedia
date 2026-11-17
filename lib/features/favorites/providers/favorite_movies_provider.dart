@@ -1,38 +1,51 @@
+import 'package:cinemapedia/common/state/movies_notifier.dart';
+import 'package:cinemapedia/common/state/movies_state.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
-import 'package:cinemapedia/domain/repositories/local_storage_repository.dart';
 import 'package:cinemapedia/providers/repositories/local_storage_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final favoriteMoviesProvider = StateNotifierProvider<StorageMoviesNotifier, Map<int, Movie>>((ref) {
+/// Películas favoritas paginadas desde el almacenamiento local.
+final favoriteMoviesProvider =
+    NotifierProvider<FavoriteMoviesNotifier, MoviesState>(
+  FavoriteMoviesNotifier.new,
+);
+
+/// Consulta puntual de si una película es favorita (no depende de la
+/// paginación de la lista).
+final isFavoriteMovieProvider =
+    FutureProvider.autoDispose.family<bool, int>((ref, movieId) {
   final localStorageRepository = ref.watch(localStorageRepositoryProvider);
-  return StorageMoviesNotifier(localStorageRepository);
+  return localStorageRepository.isFavoriteMovie(movieId);
 });
 
-class StorageMoviesNotifier extends StateNotifier<Map<int, Movie>> {
-  final LocalStorageRepository localStorageRepository;
+class FavoriteMoviesNotifier extends MoviesNotifier {
+  FavoriteMoviesNotifier() : super(_selectFetcher);
 
-  int page = 1;
-
-  StorageMoviesNotifier(this.localStorageRepository) : super({});
-
-  Future<List<Movie>> loadNextPage() async {
-    final movies = await localStorageRepository.getFavoriteMovies(page: page, limit: 20);
-    state = {
-      ...state,
-      ...Map.fromEntries(movies.map((movie) => MapEntry(movie.id, movie))),
+  static MoviePageFetcher _selectFetcher(Ref ref) {
+    return ({int page = 1}) {
+      return ref
+          .read(localStorageRepositoryProvider)
+          .getFavoriteMovies(page: page);
     };
-    page++;
-    return movies;
   }
 
-  Future<void> toggleFavoriteMovie(Movie movie) async {
-    await localStorageRepository.toggleFavoriteMovie(movie);
-    final isFavorite = state[movie.id] != null;
-    if (isFavorite) {
-      state.remove(movie.id);
-      state = {...state};
-    } else {
-      state = {...state, movie.id: movie};
-    }
+  /// Agrega o quita una película de favoritos y actualiza la lista en memoria.
+  ///
+  /// Devuelve `true` si la película quedó como favorita.
+  Future<bool> toggleFavoriteMovie(Movie movie) async {
+    final isFavorite = await ref
+        .read(localStorageRepositoryProvider)
+        .toggleFavoriteMovie(movie);
+
+    final withoutMovie =
+        state.movies.where((item) => item.id != movie.id).toList();
+    state = state.copyWith(
+      movies: isFavorite ? [movie, ...withoutMovie] : withoutMovie,
+    );
+
+    // Mantiene sincronizado el corazón de la pantalla de detalles.
+    ref.invalidate(isFavoriteMovieProvider(movie.id));
+
+    return isFavorite;
   }
 }

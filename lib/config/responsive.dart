@@ -20,7 +20,8 @@ class Breakpoints {
 class Responsive {
   Responsive._();
 
-  static double widthOf(BuildContext context) => MediaQuery.sizeOf(context).width;
+  static double widthOf(BuildContext context) =>
+      MediaQuery.sizeOf(context).width;
 
   /// Columnas del masonry de pósters (Favoritos / Populares) según el ancho.
   static int posterColumns(double width) {

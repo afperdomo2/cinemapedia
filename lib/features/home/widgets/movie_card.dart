@@ -1,4 +1,5 @@
 import 'package:cinemapedia/domain/entities/movie.dart';
+import 'package:cinemapedia/shared/widgets/tmdb_image.dart';
 import 'package:cinemapedia/shared/widgets/vote_average.dart';
 import 'package:cinemapedia/shared/widgets/vote_count.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,7 @@ import 'package:flutter/material.dart';
 class MovieCard extends StatelessWidget {
   final Movie movie;
 
-  /// Ancho de la imagen; alto se calcula con la proporción original 135×220.
+  /// Ancho de la imagen; el alto se calcula con la proporción original 135×220.
   final double imageWidth;
 
   const MovieCard(this.movie, {super.key, this.imageWidth = 135.0});
@@ -17,26 +18,18 @@ class MovieCard extends StatelessWidget {
 
     final imageHeight = imageWidth * 220 / 135;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
+    return SizedBox(
+      width: imageWidth,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           /// Image
-          SizedBox(
+          TmdbImage(
+            movie.posterPath,
+            size: TmdbImageSize.w342,
             width: imageWidth,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-
-              /// FadeInImage: Widget que permite mostrar una imagen con un efecto de transición.
-              child: FadeInImage(
-                height: imageHeight,
-                width: imageWidth,
-                fit: BoxFit.cover, // Ajusta la imagen al tamaño del contenedor.
-                placeholder: const AssetImage('assets/loaders/bottle-loader.gif'),
-                image: NetworkImage(movie.posterPath),
-              ),
-            ),
+            height: imageHeight,
+            borderRadius: BorderRadius.circular(20),
           ),
 
           const SizedBox(height: 5),
@@ -57,7 +50,12 @@ class MovieCard extends StatelessWidget {
           /// Title
           SizedBox(
             width: imageWidth,
-            child: Text(movie.title, maxLines: 2, style: textStyles.titleSmall),
+            child: Text(
+              movie.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: textStyles.titleSmall,
+            ),
           ),
         ],
       ),

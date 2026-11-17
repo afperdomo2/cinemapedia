@@ -73,11 +73,10 @@ final appRouter = GoRouter(
           parentNavigatorKey: _rootNavigatorKey,
           builder: (context, state) {
             final extra = state.extra;
-            if (extra is! ({List<Video> videos, int initialIndex})) {
+            if (extra is! Video) {
               return const RouteErrorScreen();
             }
-            return VideoScreen(
-                videos: extra.videos, initialIndex: extra.initialIndex);
+            return VideoScreen(video: extra);
           },
         ),
       ],

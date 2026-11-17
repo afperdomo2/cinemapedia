@@ -32,7 +32,7 @@ Cinemapedia es una aplicación móvil que ofrece una interfaz intuitiva y atract
 
 - **youtube_player_flutter:** Reproductor de los trailers en la pantalla de videos.
 
-> **Plataformas soportadas:** Android e iOS. `isar_flutter_libs` y `youtube_player_flutter` no soportan web/desktop, por lo que esas carpetas del proyecto no son funcionales sin migrar ambas dependencias.
+> **Plataformas soportadas:** Android e iOS como experiencia base (player embebido de YouTube). En Linux/Windows/macOS la app funciona completa: los trailers se reproducen **dentro de la app** con `media_kit`, extrayendo el stream público de YouTube con `youtube_explode_dart` (mismo mecanismo que usan reproductores open source como NewPipe o yt-dlp). Es una solución no oficial: si YouTube cambia su backend puede dejar de funcionar, y en ese caso la pantalla ofrece **"Ver en YouTube"** para abrir el video en el navegador del sistema.
 
 > **Nota de seguridad:** `.env` se empaqueta dentro del binario para que la app lea la API key de TMDB. Restringí la key desde la consola de TMDB (por referrer/paquete) para evitar usos indebidos.
 
@@ -138,3 +138,21 @@ dart run build_runner build --delete-conflicting-outputs
 ```
 
 El workflow de GitHub Actions (`.github/workflows/ci.yml`) corre `flutter analyze`, `flutter test` y el chequeo de formato en cada push y pull request.
+
+---
+
+## 🎨7. Iconos
+
+La identidad visual de la app vive en `brand/` como fuente única:
+
+- `brand/icon.svg` → tile de la app (fondo `#1E293B` + claqueta en `#B3261E`).
+- `brand/mark.svg` → solo la claqueta, con `currentColor` (adaptive icon y monochrome de Android).
+
+Los PNG/ICO de cada plataforma (Android, iOS, macOS, Windows y web) se generan desde esos SVG:
+
+```sh
+# Requiere Google Chrome/Chromium + Python 3 con Pillow
+./scripts/generate-icons.sh
+```
+
+> **Importante:** los archivos generados se commitean, pero **no se editan a mano**. Para cambiar el icono se edita `brand/` y se vuelve a ejecutar el script (es idempotente: dos corridas producen los mismos archivos). Linux queda fuera porque el template de este repo no define icono de ventana.

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Cinemapedia">
+  <!-- Glifo suelto: claqueta de cine. `currentColor` permite reutilizarlo en
+       rojo (tile oscuro), blanco (monochrome Android) o cualquier contexto.
+       Mantener en sincronía con brand/icon.svg. -->
+  <g transform="rotate(-6 256 256)">
+    <g mask="url(#clapper)">
+      <rect x="104" y="138" width="304" height="236" rx="28" fill="currentColor"/>
+    </g>
+  </g>
+  <defs>
+    <clipPath id="clapper-band">
+      <rect x="80" y="96" width="400" height="130"/>
+    </clipPath>
+    <mask id="clapper">
+      <rect x="104" y="138" width="304" height="236" rx="28" fill="#fff"/>
+      <g stroke="#000" stroke-width="30" clip-path="url(#clapper-band)">
+        <line x1="212" y1="96" x2="128" y2="250"/>
+        <line x1="302" y1="96" x2="218" y2="250"/>
+        <line x1="392" y1="96" x2="308" y2="250"/>
+      </g>
+    </mask>
+  </defs>
+</svg>

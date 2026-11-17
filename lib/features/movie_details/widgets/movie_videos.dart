@@ -51,7 +51,7 @@ class MovieVideos extends StatelessWidget {
                 onTap: () => context.pushNamed(
                   VideoScreen.name,
                   pathParameters: {'movieId': '$movieId'},
-                  extra: (videos: videos, initialIndex: index),
+                  extra: video,
                 ),
               );
             },

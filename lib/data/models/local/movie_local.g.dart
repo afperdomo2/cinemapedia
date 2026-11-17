@@ -37,53 +37,63 @@ const MovieLocalSchema = CollectionSchema(
       name: r'id',
       type: IsarType.long,
     ),
-    r'originalLanguage': PropertySchema(
+    r'inWatchlist': PropertySchema(
       id: 4,
+      name: r'inWatchlist',
+      type: IsarType.bool,
+    ),
+    r'isFavorite': PropertySchema(
+      id: 5,
+      name: r'isFavorite',
+      type: IsarType.bool,
+    ),
+    r'originalLanguage': PropertySchema(
+      id: 6,
       name: r'originalLanguage',
       type: IsarType.string,
     ),
     r'originalTitle': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'originalTitle',
       type: IsarType.string,
     ),
     r'overview': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'overview',
       type: IsarType.string,
     ),
     r'popularity': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'popularity',
       type: IsarType.double,
     ),
     r'posterPath': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'posterPath',
       type: IsarType.string,
     ),
     r'releaseDate': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'releaseDate',
       type: IsarType.dateTime,
     ),
     r'title': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'title',
       type: IsarType.string,
     ),
     r'video': PropertySchema(
-      id: 11,
+      id: 13,
       name: r'video',
       type: IsarType.bool,
     ),
     r'voteAverage': PropertySchema(
-      id: 12,
+      id: 14,
       name: r'voteAverage',
       type: IsarType.double,
     ),
     r'voteCount': PropertySchema(
-      id: 13,
+      id: 15,
       name: r'voteCount',
       type: IsarType.long,
     )
@@ -148,16 +158,18 @@ void _movieLocalSerialize(
   writer.writeString(offsets[1], object.backdropPath);
   writer.writeStringList(offsets[2], object.genreIds);
   writer.writeLong(offsets[3], object.id);
-  writer.writeString(offsets[4], object.originalLanguage);
-  writer.writeString(offsets[5], object.originalTitle);
-  writer.writeString(offsets[6], object.overview);
-  writer.writeDouble(offsets[7], object.popularity);
-  writer.writeString(offsets[8], object.posterPath);
-  writer.writeDateTime(offsets[9], object.releaseDate);
-  writer.writeString(offsets[10], object.title);
-  writer.writeBool(offsets[11], object.video);
-  writer.writeDouble(offsets[12], object.voteAverage);
-  writer.writeLong(offsets[13], object.voteCount);
+  writer.writeBool(offsets[4], object.inWatchlist);
+  writer.writeBool(offsets[5], object.isFavorite);
+  writer.writeString(offsets[6], object.originalLanguage);
+  writer.writeString(offsets[7], object.originalTitle);
+  writer.writeString(offsets[8], object.overview);
+  writer.writeDouble(offsets[9], object.popularity);
+  writer.writeString(offsets[10], object.posterPath);
+  writer.writeDateTime(offsets[11], object.releaseDate);
+  writer.writeString(offsets[12], object.title);
+  writer.writeBool(offsets[13], object.video);
+  writer.writeDouble(offsets[14], object.voteAverage);
+  writer.writeLong(offsets[15], object.voteCount);
 }
 
 MovieLocal _movieLocalDeserialize(
@@ -171,16 +183,18 @@ MovieLocal _movieLocalDeserialize(
     backdropPath: reader.readString(offsets[1]),
     genreIds: reader.readStringList(offsets[2]) ?? [],
     id: reader.readLong(offsets[3]),
-    originalLanguage: reader.readString(offsets[4]),
-    originalTitle: reader.readString(offsets[5]),
-    overview: reader.readString(offsets[6]),
-    popularity: reader.readDouble(offsets[7]),
-    posterPath: reader.readString(offsets[8]),
-    releaseDate: reader.readDateTimeOrNull(offsets[9]),
-    title: reader.readString(offsets[10]),
-    video: reader.readBool(offsets[11]),
-    voteAverage: reader.readDouble(offsets[12]),
-    voteCount: reader.readLong(offsets[13]),
+    inWatchlist: reader.readBoolOrNull(offsets[4]) ?? false,
+    isFavorite: reader.readBoolOrNull(offsets[5]) ?? false,
+    originalLanguage: reader.readString(offsets[6]),
+    originalTitle: reader.readString(offsets[7]),
+    overview: reader.readString(offsets[8]),
+    popularity: reader.readDouble(offsets[9]),
+    posterPath: reader.readString(offsets[10]),
+    releaseDate: reader.readDateTimeOrNull(offsets[11]),
+    title: reader.readString(offsets[12]),
+    video: reader.readBool(offsets[13]),
+    voteAverage: reader.readDouble(offsets[14]),
+    voteCount: reader.readLong(offsets[15]),
   );
   object.isarId = id;
   return object;
@@ -202,24 +216,28 @@ P _movieLocalDeserializeProp<P>(
     case 3:
       return (reader.readLong(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readBoolOrNull(offset) ?? false) as P;
     case 5:
-      return (reader.readString(offset)) as P;
+      return (reader.readBoolOrNull(offset) ?? false) as P;
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
       return (reader.readString(offset)) as P;
     case 9:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 10:
       return (reader.readString(offset)) as P;
     case 11:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 12:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 13:
+      return (reader.readBool(offset)) as P;
+    case 14:
+      return (reader.readDouble(offset)) as P;
+    case 15:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -891,6 +909,26 @@ extension MovieLocalQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<MovieLocal, MovieLocal, QAfterFilterCondition>
+      inWatchlistEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'inWatchlist',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<MovieLocal, MovieLocal, QAfterFilterCondition> isFavoriteEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isFavorite',
+        value: value,
       ));
     });
   }
@@ -1933,6 +1971,30 @@ extension MovieLocalQuerySortBy
     });
   }
 
+  QueryBuilder<MovieLocal, MovieLocal, QAfterSortBy> sortByInWatchlist() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'inWatchlist', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MovieLocal, MovieLocal, QAfterSortBy> sortByInWatchlistDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'inWatchlist', Sort.desc);
+    });
+  }
+
+  QueryBuilder<MovieLocal, MovieLocal, QAfterSortBy> sortByIsFavorite() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isFavorite', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MovieLocal, MovieLocal, QAfterSortBy> sortByIsFavoriteDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isFavorite', Sort.desc);
+    });
+  }
+
   QueryBuilder<MovieLocal, MovieLocal, QAfterSortBy> sortByOriginalLanguage() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'originalLanguage', Sort.asc);
@@ -2090,6 +2152,30 @@ extension MovieLocalQuerySortThenBy
   QueryBuilder<MovieLocal, MovieLocal, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<MovieLocal, MovieLocal, QAfterSortBy> thenByInWatchlist() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'inWatchlist', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MovieLocal, MovieLocal, QAfterSortBy> thenByInWatchlistDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'inWatchlist', Sort.desc);
+    });
+  }
+
+  QueryBuilder<MovieLocal, MovieLocal, QAfterSortBy> thenByIsFavorite() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isFavorite', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MovieLocal, MovieLocal, QAfterSortBy> thenByIsFavoriteDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isFavorite', Sort.desc);
     });
   }
 
@@ -2254,6 +2340,18 @@ extension MovieLocalQueryWhereDistinct
     });
   }
 
+  QueryBuilder<MovieLocal, MovieLocal, QDistinct> distinctByInWatchlist() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'inWatchlist');
+    });
+  }
+
+  QueryBuilder<MovieLocal, MovieLocal, QDistinct> distinctByIsFavorite() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isFavorite');
+    });
+  }
+
   QueryBuilder<MovieLocal, MovieLocal, QDistinct> distinctByOriginalLanguage(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2351,6 +2449,18 @@ extension MovieLocalQueryProperty
   QueryBuilder<MovieLocal, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<MovieLocal, bool, QQueryOperations> inWatchlistProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'inWatchlist');
+    });
+  }
+
+  QueryBuilder<MovieLocal, bool, QQueryOperations> isFavoriteProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isFavorite');
     });
   }
 

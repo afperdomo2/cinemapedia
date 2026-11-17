@@ -1,9 +1,12 @@
 import 'package:cinemapedia/common/widgets/scaffold_with_bottom_navbar.dart';
 import 'package:cinemapedia/domain/entities/video.dart';
 import 'package:cinemapedia/features/favorites/screens/favorites_screen.dart';
+import 'package:cinemapedia/features/genres/screens/genres_screen.dart';
+import 'package:cinemapedia/features/genres/screens/movies_by_genre_screen.dart';
 import 'package:cinemapedia/features/home/screens/home_screen.dart';
 import 'package:cinemapedia/features/movie_details/screens/movie_details_screen.dart';
 import 'package:cinemapedia/features/movie_details/screens/video_screen.dart';
+import 'package:cinemapedia/features/person/screens/person_screen.dart';
 import 'package:cinemapedia/features/popular/screens/popular_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -11,9 +14,19 @@ import 'package:go_router/go_router.dart';
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final appRouter = GoRouter(
-  initialLocation: '/',
+  // Sin `initialLocation`: los deep links en frío (y las URLs del navegador en
+  // web) llegan por la ruta inicial de la plataforma.
   navigatorKey: _rootNavigatorKey,
   errorBuilder: (context, state) => const RouteErrorScreen(),
+  // Los deep links con esquema propio llegan como `cinemapedia://movie/123`
+  // (el primer segmento viaja como host): se normalizan a `/movie/123`.
+  redirect: (context, state) {
+    final uri = state.uri;
+    if (uri.scheme == 'cinemapedia' && uri.host.isNotEmpty) {
+      return '/${uri.host}/${uri.pathSegments.join('/')}';
+    }
+    return null;
+  },
   routes: [
     // StatefulShellRoute para manejar las pestañas de navegación
     StatefulShellRoute.indexedStack(
@@ -53,6 +66,32 @@ final appRouter = GoRouter(
             ),
           ],
         ),
+
+        // Branch Explorar
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/genres',
+              name: GenresScreen.name,
+              builder: (context, state) => const GenresScreen(),
+              routes: [
+                GoRoute(
+                  path: ':genreId',
+                  name: MoviesByGenreScreen.name,
+                  builder: (context, state) {
+                    final genreId =
+                        int.tryParse(state.pathParameters['genreId'] ?? '');
+                    if (genreId == null) return const RouteErrorScreen();
+                    return MoviesByGenreScreen(
+                      genreId: genreId,
+                      genreName: state.extra as String?,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ],
     ),
 
@@ -80,6 +119,18 @@ final appRouter = GoRouter(
           },
         ),
       ],
+    ),
+
+    // Detalle de persona (actor/dirección) fuera del shell, como el de películas
+    GoRoute(
+      path: '/person/:personId',
+      name: PersonScreen.name,
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final personId = int.tryParse(state.pathParameters['personId'] ?? '');
+        if (personId == null) return const RouteErrorScreen();
+        return PersonScreen(personId: personId);
+      },
     ),
   ],
 );

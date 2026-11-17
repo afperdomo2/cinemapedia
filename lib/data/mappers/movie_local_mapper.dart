@@ -22,7 +22,11 @@ class MovieLocalMapper {
     );
   }
 
-  static MovieLocal fromEntity(Movie movie) {
+  static MovieLocal fromEntity(
+    Movie movie, {
+    bool isFavorite = false,
+    bool inWatchlist = false,
+  }) {
     return MovieLocal(
       id: movie.id,
       adult: movie.adult,
@@ -38,6 +42,8 @@ class MovieLocalMapper {
       video: movie.video,
       voteAverage: movie.voteAverage,
       voteCount: movie.voteCount,
+      isFavorite: isFavorite,
+      inWatchlist: inWatchlist,
     );
   }
 }

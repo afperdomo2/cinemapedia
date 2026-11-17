@@ -1,7 +1,7 @@
 import 'package:cinemapedia/features/home/screens/home_screen.dart';
-import 'package:cinemapedia/features/home/widgets/full_screen_loader.dart';
 import 'package:cinemapedia/providers/repositories/movie_repository_provider.dart';
 import 'package:cinemapedia/shared/widgets/error_view.dart';
+import 'package:cinemapedia/shared/widgets/skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -25,11 +25,10 @@ void main() {
     fakeRepository = FakeMovieRepository();
   });
 
-  testWidgets('mientras carga muestra el loader a pantalla completa',
-      (tester) async {
+  testWidgets('mientras carga muestra el skeleton del inicio', (tester) async {
     await tester.pumpWidget(buildHome());
 
-    expect(find.byType(FullScreenLoader), findsOneWidget);
+    expect(find.byType(HomeSkeleton), findsOneWidget);
   });
 
   testWidgets('si todo falla muestra el error con botón de reintento',
@@ -41,7 +40,7 @@ void main() {
 
     expect(find.byType(ErrorView), findsOneWidget);
     expect(find.text('Reintentar'), findsOneWidget);
-    expect(find.byType(FullScreenLoader), findsNothing);
+    expect(find.byType(HomeSkeleton), findsNothing);
   });
 
   testWidgets('el reintento vuelve a pedir los datos y muestra las secciones',

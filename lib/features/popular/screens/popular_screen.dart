@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:cinemapedia/common/state/movies_state.dart';
 import 'package:cinemapedia/common/widgets/scaffold_with_bottom_navbar.dart';
 import 'package:cinemapedia/features/home/providers/movies_provider.dart';
+import 'package:cinemapedia/shared/widgets/cached_content_banner.dart';
 import 'package:cinemapedia/shared/widgets/error_view.dart';
 import 'package:cinemapedia/shared/widgets/movies_grid.dart';
 import 'package:cinemapedia/shared/widgets/movie_search_icon_button.dart';
+import 'package:cinemapedia/shared/widgets/skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -68,7 +70,7 @@ class _PopularScreenState extends ConsumerState<PopularScreen> {
 
   Widget _buildBody(MoviesState state) {
     if (state.isInitialLoading) {
-      return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+      return const MoviesSkeletonGrid();
     }
 
     if (state.hasError) {
@@ -79,11 +81,20 @@ class _PopularScreenState extends ConsumerState<PopularScreen> {
       );
     }
 
-    return MoviesGrid(
+    final grid = MoviesGrid(
       state,
       controller: _scrollController,
       onLoadMore: () =>
           unawaited(ref.read(popularMoviesProvider.notifier).loadNextPage()),
+    );
+
+    if (!state.fromCache) return grid;
+
+    return Column(
+      children: [
+        const CachedContentBanner(),
+        Expanded(child: grid),
+      ],
     );
   }
 }

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/features/favorites/providers/favorite_movies_provider.dart';
+import 'package:cinemapedia/features/favorites/providers/watchlist_movies_provider.dart';
+import 'package:cinemapedia/shared/widgets/share_icon_button.dart';
 import 'package:cinemapedia/shared/widgets/tmdb_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -34,12 +36,36 @@ class MovieDetailsAppBar extends ConsumerWidget {
       );
   }
 
+  Future<void> _toggleWatchlist(BuildContext context, WidgetRef ref) async {
+    final inWatchlist = await ref
+        .read(watchlistMoviesProvider.notifier)
+        .toggleWatchlistMovie(movie);
+
+    if (!context.mounted) return;
+
+    unawaited(HapticFeedback.lightImpact());
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            inWatchlist
+                ? 'Agregada a "Quiero ver": ${movie.title}'
+                : 'Eliminada de "Quiero ver": ${movie.title}',
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavoriteMovie = ref.watch(isFavoriteMovieProvider(movie.id));
+    final isInWatchlistMovie = ref.watch(isInWatchlistMovieProvider(movie.id));
     final size = MediaQuery.of(context).size;
 
     final isFavorite = isFavoriteMovie.valueOrNull ?? false;
+    final isInWatchlist = isInWatchlistMovie.valueOrNull ?? false;
 
     return SliverAppBar(
       backgroundColor: Colors.black,
@@ -47,6 +73,17 @@ class MovieDetailsAppBar extends ConsumerWidget {
       expandedHeight: (size.height * 0.7).clamp(300.0, 600.0).toDouble(),
       foregroundColor: Colors.white,
       actions: [
+        ShareMovieIconButton(movie),
+        IconButton(
+          tooltip: isInWatchlist
+              ? 'Quitar de "Quiero ver"'
+              : 'Agregar a "Quiero ver"',
+          onPressed: () => _toggleWatchlist(context, ref),
+          icon: Icon(
+            isInWatchlist ? Icons.bookmark : Icons.bookmark_outline,
+            color: isInWatchlist ? Colors.amber : null,
+          ),
+        ),
         IconButton(
           tooltip: isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos',
           onPressed: () => _toggleFavorite(context, ref),

@@ -19,6 +19,10 @@ captures/
 *.apk
 output.json
 
+# Salidas de scripts/build-apk.sh y scripts/build-deb.sh
+dist/
+*.deb
+
 # IntelliJ
 *.iml
 .idea/

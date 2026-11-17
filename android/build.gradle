@@ -5,14 +5,38 @@ allprojects {
     }
 }
 
-rootProject.buildDir = "../build"
+// Usa layout.buildDirectory porque Project.buildDir quedó deprecado (y se
+// removió en Gradle 9).
+def newBuildDir = rootProject.layout.buildDirectory.dir("../../build").get()
+rootProject.layout.buildDirectory.value(newBuildDir)
+
 subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    def newSubprojectBuildDir = newBuildDir.dir(project.name)
+    project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 subprojects {
     project.evaluationDependsOn(":app")
 }
 
+// Algunos plugins viejos (flutter_inappwebview 5.x, transitivo de
+// youtube_player_flutter 8.x) no declaran `namespace` en su build.gradle y
+// AGP 8+ lo exige. Se completa automáticamente desde el atributo `package`
+// del AndroidManifest del plugin, al aplicarse el plugin de Android.
+// Quitar cuando youtube_player_flutter se actualice a 9.x+ y se pueda subir
+// a AGP 9 (el resto de la config ya está preparada).
+subprojects { project ->
+    project.plugins.withId("com.android.library") {
+        def androidExt = project.extensions.findByName("android")
+        def manifest = new File(project.projectDir, "src/main/AndroidManifest.xml")
+        if (androidExt != null && androidExt.namespace == null && manifest.exists()) {
+            def matcher = (manifest.text =~ /package="([^"]+)"/)
+            if (matcher.find()) {
+                androidExt.namespace = matcher.group(1)
+            }
+        }
+    }
+}
+
 tasks.register("clean", Delete) {
-    delete rootProject.buildDir
+    delete rootProject.layout.buildDirectory
 }

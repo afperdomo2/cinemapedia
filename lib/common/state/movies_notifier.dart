@@ -3,31 +3,26 @@ import 'dart:async';
 import 'package:cinemapedia/common/state/movies_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Notifier genérico de listas paginadas de películas.
+/// Lógica de listas paginadas de películas, compartida por los notifiers
+/// simples ([MoviesNotifier]) y por familia (`MoviesByGenreNotifier`).
 ///
-/// Cada categoría (cartelera, populares, mejor valoradas, próximamente,
-/// favoritos) crea su propia instancia con su fetcher. Maneja:
+/// Maneja:
 ///  - carga inicial automática + retry desde el error,
 ///  - paginación con `hasMore` (nunca pide páginas de más),
 ///  - refresh (pull-to-refresh) conservando el contenido anterior,
 ///  - errores de dominio traducidos a mensaje para el usuario.
-class MoviesNotifier extends Notifier<MoviesState> {
-  MoviesNotifier(this._selectFetcher);
+mixin PaginatedMovies {
+  /// Cómo obtener la página N de esta lista.
+  ///
+  /// Se resuelve en cada uso: puede depender del `ref` o del argumento de la
+  /// familia.
+  MoviePageFetcher get fetcher;
 
-  final MovieFetcherSelector _selectFetcher;
+  MoviesState get state;
+  set state(MoviesState value);
 
   bool _inFlight = false;
   int _currentPage = 0;
-
-  MoviePageFetcher get _fetcher => _selectFetcher(ref);
-
-  @override
-  MoviesState build() {
-    // La carga inicial se posterga porque `build()` puede ejecutarse durante
-    // la fase de build de los widgets, donde no se puede modificar el estado.
-    unawaited(Future.microtask(loadNextPage));
-    return const MoviesState(isLoading: true);
-  }
 
   Future<void> loadNextPage() async {
     if (_inFlight || !state.hasMore) return;
@@ -41,7 +36,7 @@ class MoviesNotifier extends Notifier<MoviesState> {
     );
 
     try {
-      final result = await _fetcher(page: _currentPage + 1);
+      final result = await fetcher(page: _currentPage + 1);
       _currentPage = result.page;
 
       // Evita duplicados si un elemento de la página nueva ya se mostraba
@@ -54,6 +49,8 @@ class MoviesNotifier extends Notifier<MoviesState> {
       state = MoviesState(
         movies: [...state.movies, ...newMovies],
         hasMore: result.hasMore,
+        // Cualquier página servida desde el caché marca toda la lista.
+        fromCache: state.fromCache || result.fromCache,
       );
     } catch (error) {
       state = state.copyWith(
@@ -74,9 +71,13 @@ class MoviesNotifier extends Notifier<MoviesState> {
     state = state.copyWith(isLoading: true, hasMore: true, clearError: true);
 
     try {
-      final result = await _fetcher(page: 1);
+      final result = await fetcher(page: 1);
       _currentPage = result.page;
-      state = MoviesState(movies: result.movies, hasMore: result.hasMore);
+      state = MoviesState(
+        movies: result.movies,
+        hasMore: result.hasMore,
+        fromCache: result.fromCache,
+      );
     } catch (error) {
       // Conservamos el contenido anterior: mejor ver datos viejos que nada.
       state = state.copyWith(
@@ -86,5 +87,26 @@ class MoviesNotifier extends Notifier<MoviesState> {
     } finally {
       _inFlight = false;
     }
+  }
+}
+
+/// Notifier genérico de listas paginadas de películas.
+///
+/// Cada categoría (cartelera, populares, mejor valoradas, próximamente,
+/// favoritos, "quiero ver") crea su propia instancia con su fetcher.
+class MoviesNotifier extends Notifier<MoviesState> with PaginatedMovies {
+  MoviesNotifier(this._selectFetcher);
+
+  final MovieFetcherSelector _selectFetcher;
+
+  @override
+  MoviePageFetcher get fetcher => _selectFetcher(ref);
+
+  @override
+  MoviesState build() {
+    // La carga inicial se posterga porque `build()` puede ejecutarse durante
+    // la fase de build de los widgets, donde no se puede modificar el estado.
+    unawaited(Future.microtask(loadNextPage));
+    return const MoviesState(isLoading: true);
   }
 }

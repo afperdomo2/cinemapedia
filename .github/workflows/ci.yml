@@ -8,14 +8,19 @@ on:
 jobs:
   analyze-and-test:
     name: Analizar y testear
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
+
+      # .env está en .gitignore (contiene la API key de TMDB), pero pubspec.yaml
+      # lo declara como asset: sin el archivo, flutter analyze/test fallan.
+      - name: Preparar .env
+        run: cp .env.example .env
 
       - name: Dependencias
         run: flutter pub get

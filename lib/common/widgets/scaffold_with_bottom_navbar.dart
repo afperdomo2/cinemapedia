@@ -48,6 +48,9 @@ class ScaffoldWithBottomNavBar extends ConsumerWidget {
                 NavigationRailDestination(
                     icon: Icon(Icons.favorite_outline),
                     label: Text('Favoritos')),
+                NavigationRailDestination(
+                    icon: Icon(Icons.explore_outlined),
+                    label: Text('Explorar')),
               ],
             ),
             const VerticalDivider(thickness: 1, width: 1),
@@ -77,6 +80,11 @@ class ScaffoldWithBottomNavBar extends ConsumerWidget {
             icon: Icon(Icons.favorite_outline),
             selectedIcon: Icon(Icons.favorite),
             label: 'Favoritos',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.explore_outlined),
+            selectedIcon: Icon(Icons.explore),
+            label: 'Explorar',
           ),
         ],
       ),

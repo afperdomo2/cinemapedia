@@ -14,12 +14,27 @@ class LocalStorageRepositoryImpl extends LocalStorageRepository {
   }
 
   @override
+  Future<MoviePage> getWatchlistMovies({int page = 1, int limit = 20}) {
+    return dataSource.getWatchlistMovies(page: page, limit: limit);
+  }
+
+  @override
   Future<bool> isFavoriteMovie(int movieId) {
     return dataSource.isFavoriteMovie(movieId);
   }
 
   @override
+  Future<bool> isInWatchlistMovie(int movieId) {
+    return dataSource.isInWatchlistMovie(movieId);
+  }
+
+  @override
   Future<bool> toggleFavoriteMovie(Movie movie) {
     return dataSource.toggleFavoriteMovie(movie);
+  }
+
+  @override
+  Future<bool> toggleWatchlistMovie(Movie movie) {
+    return dataSource.toggleWatchlistMovie(movie);
   }
 }

@@ -1,7 +1,9 @@
 name: cinemapedia
 description: "Catálogo de películas de TMDB: cartelera, populares, favoritos y trailers."
 publish_to: "none"
-version: 0.2.0
+# Formato Flutter: x.y.z+número de build. El número de build lo incrementa
+# scripts/bump-build.sh automáticamente en cada release (ver README §8).
+version: 0.2.0+1
 
 environment:
   sdk: ">=3.4.3 <4.0.0"
@@ -25,7 +27,9 @@ dependencies:
   media_kit_libs_macos_video: ^1.1.4
   media_kit_libs_windows_video: ^1.0.11
   media_kit_video: ^2.0.1
+  package_info_plus: ^10.2.2
   path_provider: ^2.1.5
+  share_plus: ^13.3.1
   shared_preferences: ^2.5.6
   url_launcher: ^6.3.3
   youtube_explode_dart: ^3.1.0

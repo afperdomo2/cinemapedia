@@ -1,8 +1,10 @@
 import 'package:cinemapedia/domain/datasources/local_storage_datasource.dart';
 import 'package:cinemapedia/domain/entities/actor.dart';
+import 'package:cinemapedia/domain/entities/genre.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/domain/entities/movie_details.dart';
 import 'package:cinemapedia/domain/entities/movie_page.dart';
+import 'package:cinemapedia/domain/entities/person.dart';
 import 'package:cinemapedia/domain/entities/video.dart';
 import 'package:cinemapedia/domain/repositories/movie_repository.dart';
 
@@ -56,6 +58,19 @@ MovieDetails makeMovieDetails(int id) {
   );
 }
 
+/// Construye una [Person] de prueba sobreescribiendo solo los campos necesarios.
+Person makePerson(int id, {String name = 'Persona'}) {
+  return Person(
+    id: id,
+    name: name,
+    biography: 'Una biografía de prueba.',
+    profilePath: '/persona.jpg',
+    birthday: '1980-05-20',
+    placeOfBirth: 'Buenos Aires, Argentina',
+    knownForDepartment: 'Acting',
+  );
+}
+
 /// Repositorio falso con comportamiento configurable por test.
 class FakeMovieRepository implements MovieRepository {
   /// Constructor de la página que devuelve cada listado.
@@ -76,7 +91,22 @@ class FakeMovieRepository implements MovieRepository {
   /// Si se setea, las páginas (y/o los detalles) fallan con este error.
   Object? pageError;
   Object? detailsError;
+  Object? genresError;
   MovieDetails Function(int movieId) detailsBuilder = makeMovieDetails;
+
+  /// Géneros que devuelve [getGenres].
+  List<Genre> genres = const [
+    Genre(id: 28, name: 'Acción'),
+    Genre(id: 35, name: 'Comedia'),
+  ];
+
+  /// Persona que devuelve [getPerson].
+  Person Function(int personId) personBuilder = makePerson;
+  Object? personError;
+
+  /// Filmografía que devuelve [getPersonMovieCredits].
+  List<Movie> Function(int personId) creditsBuilder =
+      (personId) => [makeMovie(id: 1), makeMovie(id: 2)];
 
   /// Registro de llamadas para las aserciones.
   final List<String> calls = [];
@@ -105,6 +135,34 @@ class FakeMovieRepository implements MovieRepository {
       _page('search:$query', page);
 
   @override
+  Future<List<Genre>> getGenres() async {
+    calls.add('genres');
+    final error = genresError;
+    if (error != null) throw error;
+    return genres;
+  }
+
+  @override
+  Future<MoviePage> discoverMoviesByGenre(int genreId, {int page = 1}) =>
+      _page('discover:$genreId', page);
+
+  @override
+  Future<Person> getPerson(int personId) async {
+    calls.add('person:$personId');
+    final error = personError;
+    if (error != null) throw error;
+    return personBuilder(personId);
+  }
+
+  @override
+  Future<List<Movie>> getPersonMovieCredits(int personId) async {
+    calls.add('personCredits:$personId');
+    final error = personError;
+    if (error != null) throw error;
+    return creditsBuilder(personId);
+  }
+
+  @override
   Future<MovieDetails> getMovieDetails(int movieId) async {
     calls.add('details:$movieId');
     final error = detailsError;
@@ -116,6 +174,7 @@ class FakeMovieRepository implements MovieRepository {
 /// Almacenamiento local falso en memoria.
 class FakeLocalStorageDataSource implements LocalStorageDataSource {
   final Map<int, Movie> favorites = {};
+  final Map<int, Movie> watchlist = {};
   final List<String> calls = [];
 
   @override
@@ -125,8 +184,14 @@ class FakeLocalStorageDataSource implements LocalStorageDataSource {
   }
 
   @override
+  Future<bool> isInWatchlistMovie(int movieId) async {
+    calls.add('isInWatchlist:$movieId');
+    return watchlist.containsKey(movieId);
+  }
+
+  @override
   Future<bool> toggleFavoriteMovie(Movie movie) async {
-    calls.add('toggle:${movie.id}');
+    calls.add('toggleFavorite:${movie.id}');
     if (favorites.containsKey(movie.id)) {
       favorites.remove(movie.id);
       return false;
@@ -136,10 +201,35 @@ class FakeLocalStorageDataSource implements LocalStorageDataSource {
   }
 
   @override
-  Future<MoviePage> getFavoriteMovies({int page = 1, int limit = 20}) async {
+  Future<bool> toggleWatchlistMovie(Movie movie) async {
+    calls.add('toggleWatchlist:${movie.id}');
+    if (watchlist.containsKey(movie.id)) {
+      watchlist.remove(movie.id);
+      return false;
+    }
+    watchlist[movie.id] = movie;
+    return true;
+  }
+
+  @override
+  Future<MoviePage> getFavoriteMovies({int page = 1, int limit = 20}) {
     calls.add('getFavoriteMovies:$page');
+    return _pageOf(favorites, page, limit);
+  }
+
+  @override
+  Future<MoviePage> getWatchlistMovies({int page = 1, int limit = 20}) {
+    calls.add('getWatchlistMovies:$page');
+    return _pageOf(watchlist, page, limit);
+  }
+
+  Future<MoviePage> _pageOf(
+    Map<int, Movie> source,
+    int page,
+    int limit,
+  ) async {
     // Más recientes primero, como el datasource real.
-    final all = favorites.values.toList().reversed.toList();
+    final all = source.values.toList().reversed.toList();
     final start = (page - 1) * limit;
     final movies =
         start >= all.length ? <Movie>[] : all.skip(start).take(limit).toList();

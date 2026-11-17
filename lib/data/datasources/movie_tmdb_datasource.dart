@@ -1,16 +1,24 @@
 import 'package:cinemapedia/config/constants/environment.dart';
 import 'package:cinemapedia/data/mappers/actor_mapper.dart';
+import 'package:cinemapedia/data/mappers/genre_mapper.dart';
 import 'package:cinemapedia/data/mappers/movie_mapper.dart';
+import 'package:cinemapedia/data/mappers/person_mapper.dart';
 import 'package:cinemapedia/data/mappers/video_mapper.dart';
+import 'package:cinemapedia/data/models/tmdb/genre_list_tmdb_response.dart';
 import 'package:cinemapedia/data/models/tmdb/movie_credits_tmdb_response.dart';
-import 'package:cinemapedia/data/models/tmdb/movie_details_tmdb_response.dart';
+// `hide Genre`: el modelo TMDB choca con la entidad de dominio Genre.
+import 'package:cinemapedia/data/models/tmdb/movie_details_tmdb_response.dart'
+    hide Genre;
 import 'package:cinemapedia/data/models/tmdb/movie_list_tmdb_response.dart';
 import 'package:cinemapedia/data/models/tmdb/movie_videos_tmdb_response.dart';
+import 'package:cinemapedia/data/models/tmdb/person_tmdb_response.dart';
 import 'package:cinemapedia/domain/datasources/movie_datasource.dart';
 import 'package:cinemapedia/domain/entities/actor.dart';
+import 'package:cinemapedia/domain/entities/genre.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/domain/entities/movie_details.dart';
 import 'package:cinemapedia/domain/entities/movie_page.dart';
+import 'package:cinemapedia/domain/entities/person.dart';
 import 'package:cinemapedia/domain/entities/video.dart';
 import 'package:cinemapedia/domain/exceptions/fetch_exception.dart';
 import 'package:dio/dio.dart';
@@ -79,11 +87,16 @@ class MovieTMDbDataSource extends MovieDataSource {
     });
   }
 
-  Future<MoviePage> _getMoviePage(String path,
-      {int page = 1, String? query}) async {
+  Future<MoviePage> _getMoviePage(
+    String path, {
+    int page = 1,
+    String? query,
+    Map<String, dynamic> extraQueryParameters = const {},
+  }) async {
     final data = await _getJson(path, queryParameters: {
       'page': page,
       if (query != null) 'query': query,
+      ...extraQueryParameters,
     });
     final response = MovieListTMDbResponse.fromJson(data);
     return MoviePage(
@@ -119,6 +132,45 @@ class MovieTMDbDataSource extends MovieDataSource {
     final trimmed = query.trim();
     if (trimmed.isEmpty) return Future.value(MoviePage.empty);
     return _getMoviePage('/search/movie', page: page, query: trimmed);
+  }
+
+  @override
+  Future<List<Genre>> getGenres() async {
+    final data = await _getJson('/genre/movie/list');
+    return GenreListTMDbResponse.fromJson(data)
+        .genres
+        .map(GenreMapper.genreTMDbResponseToEntity)
+        .toList();
+  }
+
+  @override
+  Future<MoviePage> discoverMoviesByGenre(int genreId, {int page = 1}) {
+    return _getMoviePage(
+      '/discover/movie',
+      page: page,
+      extraQueryParameters: {'with_genres': genreId},
+    );
+  }
+
+  @override
+  Future<Person> getPerson(int personId) async {
+    final data = await _getJson('/person/$personId');
+    return PersonMapper.personTMDbResponseToEntity(
+      PersonTMDbResponse.fromJson(data),
+    );
+  }
+
+  @override
+  Future<List<Movie>> getPersonMovieCredits(int personId) async {
+    final data = await _getJson('/person/$personId/movie_credits');
+    final movies = PersonMovieCreditsTMDbResponse.fromJson(data)
+        .cast
+        .map(MovieMapper.movieTMDbResponseToEntity)
+        .toList();
+
+    // La filmografía viene sin orden garantizado: la más popular primero.
+    movies.sort((a, b) => b.popularity.compareTo(a.popularity));
+    return movies;
   }
 
   @override

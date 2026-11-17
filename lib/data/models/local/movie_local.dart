@@ -2,11 +2,14 @@ import 'package:isar/isar.dart';
 
 part 'movie_local.g.dart';
 
-/// Persistencia local de favoritos (Isar).
+/// Persistencia local de las listas del usuario (Isar): favoritas y "quiero ver".
 ///
 /// Vive en la capa de datos: el dominio no conoce Isar. El [id] de TMDB lleva
-/// índice único para que las consultas de favorito no recorran toda la
-/// colección.
+/// índice único para que las consultas no recorran toda la colección.
+///
+/// Una fila existe si la película está en al menos una lista; las banderas
+/// [isFavorite] e [inWatchlist] dicen en cuáles. Si ambas quedan en `false`
+/// la fila se elimina (nunca se persisten filas sin lista).
 @Collection()
 class MovieLocal {
   MovieLocal({
@@ -24,6 +27,8 @@ class MovieLocal {
     required this.video,
     required this.voteAverage,
     required this.voteCount,
+    this.isFavorite = false,
+    this.inWatchlist = false,
   });
 
   Id isarId = Isar.autoIncrement;
@@ -45,4 +50,13 @@ class MovieLocal {
   final bool video;
   final double voteAverage;
   final int voteCount;
+
+  /// La película está marcada como favorita.
+  ///
+  /// Campo mutable: los toggles actualizan la fila existente para conservar
+  /// el orden de inserción ([isarId]) en las listas.
+  bool isFavorite;
+
+  /// La película está en la lista "Quiero ver".
+  bool inWatchlist;
 }

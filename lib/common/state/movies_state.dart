@@ -14,6 +14,7 @@ class MoviesState {
     this.isLoadingMore = false,
     this.hasMore = true,
     this.errorMessage,
+    this.fromCache = false,
   });
 
   final List<Movie> movies;
@@ -30,6 +31,10 @@ class MoviesState {
   /// Mensaje del último error, o `null` si no hay error.
   final String? errorMessage;
 
+  /// `true` si (parte de) el contenido se sirvió del caché local porque no
+  /// había conexión. La UI muestra un aviso discreto.
+  final bool fromCache;
+
   /// Hay contenido (o al menos una carga terminada): la pantalla puede render.
   bool get isInitialLoading => isLoading && movies.isEmpty;
 
@@ -43,6 +48,7 @@ class MoviesState {
     bool? hasMore,
     String? errorMessage,
     bool clearError = false,
+    bool? fromCache,
   }) {
     return MoviesState(
       movies: movies ?? this.movies,
@@ -50,6 +56,7 @@ class MoviesState {
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       hasMore: hasMore ?? this.hasMore,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      fromCache: fromCache ?? this.fromCache,
     );
   }
 }

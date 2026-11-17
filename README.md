@@ -28,6 +28,8 @@ Cinemapedia es una aplicación móvil que ofrece una interfaz intuitiva y atract
 
 - **isar / isar_flutter_libs:** Base de datos local para las películas favoritas.
 
+- **package_info_plus:** Versión y número de build de la app en runtime (diálogo "Acerca de").
+
 - **shared_preferences:** Historial local de búsquedas recientes.
 
 - **youtube_player_flutter:** Reproductor de los trailers en la pantalla de videos.
@@ -157,4 +159,78 @@ Los PNG/ICO de cada plataforma (Android, iOS, macOS, Windows y web) se generan d
 ./scripts/generate-icons.sh
 ```
 
-> **Importante:** los archivos generados se commitean, pero **no se editan a mano**. Para cambiar el icono se edita `brand/` y se vuelve a ejecutar el script (es idempotente: dos corridas producen los mismos archivos). Linux queda fuera porque el template de este repo no define icono de ventana.
+> **Importante:** los archivos generados se commitean, pero **no se editan a mano**. Para cambiar el icono se edita `brand/` y se vuelve a ejecutar el script (es idempotente: dos corridas producen los mismos archivos). Linux queda fuera porque el template de este repo no define icono de ventana (el launcher del `.deb` usa el PNG generado en `web/icons/`).
+
+---
+
+## 🚀8. Compilación y distribución
+
+### 🔢8.1 Versionamiento
+
+La versión vive en `pubspec.yaml` con el formato de Flutter `x.y.z+número de build` (ej: `0.2.0+3`):
+
+- **`x.y.z`** → versión visible para el usuario. Se cambia con los flags del script cuando hay cambios importantes.
+- **`+N`** → número de build (`versionCode` en Android). Se incrementa automáticamente en cada release.
+
+```sh
+# Subir el número de build (0.2.0+3 -> 0.2.0+4)
+./scripts/bump-build.sh
+
+# Cambios visibles para el usuario (reinician el número de build en 1)
+./scripts/bump-build.sh --patch   # 0.2.0+3 -> 0.2.1+1
+./scripts/bump-build.sh --minor   # 0.2.1+1 -> 0.3.0+1
+./scripts/bump-build.sh --major   # 0.3.0+1 -> 1.0.0+1
+```
+
+La versión se propaga sola a cada plataforma: Android la usa como `versionName`/`versionCode`, y en escritorio Flutter escribe un `version.json` dentro del bundle. La app la muestra en el diálogo **"Acerca de"** (ícono ⓘ en la barra superior), lo que ayuda a saber qué build tiene instalada cada persona.
+
+Los scripts de release (`build-apk.sh` / `build-deb.sh`) invocan el bump automáticamente antes de compilar. Si querés publicar el APK y el `.deb` con **el mismo** número de build, compilá el segundo con `--no-bump`. El bump modifica `pubspec.yaml`: commiteá el cambio junto al release (opcionalmente con un tag `git tag v0.2.0`).
+
+### 🤖8.2 Android — APK
+
+**Requisitos:** `flutter` en el PATH y el Android SDK configurado (`flutter doctor`).
+
+```sh
+# Compilar el instalador (incrementa el número de build y compila en release)
+./scripts/build-apk.sh
+
+# Variante: compilar sin cambiar la versión
+./scripts/build-apk.sh --no-bump
+```
+
+El instalador queda en `dist/cinemapedia-<versión>-android.apk` (un solo APK con todas las arquitecturas).
+
+```sh
+# Instalar en un dispositivo/emulador conectado
+adb install dist/cinemapedia-*-android.apk
+```
+
+También se puede copiar el APK al teléfono y abrirlo desde el gestor de archivos (habilitando la instalación de "orígenes desconocidos").
+
+> **Firma:** por ahora la release se firma con las llaves de debug (ver `android/app/build.gradle`), lo que alcanza para instalar manualmente. Para publicar en Google Play hace falta un keystore propio y configurar `key.properties`.
+
+> **Versión de AGP/Gradle:** el proyecto usa AGP 8.13.x + Gradle 8.14.x (compatibles con Java 21). Flutter recomienda AGP 9+, pero `flutter_inappwebview 5.x` (dependencia transitiva de `youtube_player_flutter 8.x`) no funciona con AGP 9: se queda en 8.13.x con un workaround en `android/build.gradle` que completa el `namespace` faltante. Cuando se actualice `youtube_player_flutter` a 9.x/10.x se puede subir a AGP 9.
+
+### 🐧8.3 Linux — `.deb`
+
+**Requisitos:** `flutter` con soporte de escritorio, el paquete `dpkg` (aporta `dpkg-deb`) y las dependencias de compilación de `media_kit` (Ubuntu/Debian: `sudo apt install libmpv-dev`).
+
+```sh
+# Compilar y empaquetar (incrementa el número de build, compila y genera el .deb)
+./scripts/build-deb.sh
+
+# Variante: empaquetar sin cambiar la versión
+./scripts/build-deb.sh --no-bump
+```
+
+El paquete queda en `dist/cinemapedia_<versión>_<arquitectura>.deb`.
+
+```sh
+# Instalar (apt resuelve las dependencias de runtime)
+sudo apt install ./dist/cinemapedia_*_*.deb
+
+# Desinstalar
+sudo apt remove cinemapedia
+```
+
+El paquete instala el binario y sus librerías en `/opt/cinemapedia/`, un symlink en `/usr/bin/cinemapedia`, el acceso del menú de aplicaciones (`com.example.cinemapedia.desktop`) y el icono del launcher (el PNG de `web/icons/`). Las dependencias del `control` se calculan automáticamente con `readelf` + `dpkg -S` sobre las librerías que enlaza el bundle, por lo que reflejan la distro donde se compila.

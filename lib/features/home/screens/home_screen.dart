@@ -6,10 +6,11 @@ import 'package:cinemapedia/config/helpers/human_formatter.dart';
 import 'package:cinemapedia/features/home/providers/is_movies_loading_provider.dart';
 import 'package:cinemapedia/features/home/providers/movies_provider.dart';
 import 'package:cinemapedia/features/home/providers/movies_slideshow_provider.dart';
-import 'package:cinemapedia/features/home/widgets/full_screen_loader.dart';
 import 'package:cinemapedia/features/home/widgets/movies_horizontal_listview.dart';
 import 'package:cinemapedia/features/home/widgets/movies_slideshow.dart';
+import 'package:cinemapedia/shared/widgets/cached_content_banner.dart';
 import 'package:cinemapedia/shared/widgets/error_view.dart';
+import 'package:cinemapedia/shared/widgets/skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -77,7 +78,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
     final isMoviesError = ref.watch(isMoviesErrorProvider);
 
     if (isMoviesLoading) {
-      return FullScreenLoader();
+      return const HomeSkeleton();
     }
 
     if (isMoviesError) {
@@ -93,6 +94,10 @@ class _HomeViewState extends ConsumerState<_HomeView> {
     final topRatedState = ref.watch(topRatedMoviesProvider);
     final upcomingState = ref.watch(upcomingMoviesProvider);
 
+    final servedFromCache = nowPlayingState.fromCache ||
+        topRatedState.fromCache ||
+        upcomingState.fromCache;
+
     return RefreshIndicator(
       onRefresh: _refreshAll,
       child: CustomScrollView(
@@ -107,6 +112,9 @@ class _HomeViewState extends ConsumerState<_HomeView> {
           SliverList(
             delegate: SliverChildListDelegate([
               const SizedBox(height: 2),
+
+              /// Aviso de contenido desde el caché (sin conexión)
+              if (servedFromCache) const CachedContentBanner(),
 
               /// Movies SlideShow
               MoviesSlideShow(movies: moviesSlideShow),

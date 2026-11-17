@@ -1,3 +1,4 @@
+import 'package:cinemapedia/common/widgets/about_app_button.dart';
 import 'package:cinemapedia/shared/widgets/movie_search_icon_button.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +20,7 @@ class CustomAppBar extends StatelessWidget {
           const SizedBox(width: 8),
           Text('Cinemapedia', style: titleStyle),
           const Spacer(),
+          const AboutAppButton(),
           const MovieSearchIconButton(),
         ],
       ),

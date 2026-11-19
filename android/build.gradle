@@ -18,12 +18,11 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
-// Algunos plugins viejos (flutter_inappwebview 5.x, transitivo de
-// youtube_player_flutter 8.x) no declaran `namespace` en su build.gradle y
-// AGP 8+ lo exige. Se completa automáticamente desde el atributo `package`
-// del AndroidManifest del plugin, al aplicarse el plugin de Android.
-// Quitar cuando youtube_player_flutter se actualice a 9.x+ y se pueda subir
-// a AGP 9 (el resto de la config ya está preparada).
+// Algunos plugins viejos (p. ej. isar_flutter_libs 3.x) no declaran
+// `namespace` en su build.gradle y AGP 8+ lo exige. Se completa automáticamente
+// desde el atributo `package` del AndroidManifest del plugin, al aplicarse el
+// plugin de Android. Es inofensivo con plugins modernos: si el plugin declara
+// su propio namespace, pisa este valor.
 subprojects { project ->
     project.plugins.withId("com.android.library") {
         def androidExt = project.extensions.findByName("android")
@@ -33,6 +32,20 @@ subprojects { project ->
             if (matcher.find()) {
                 androidExt.namespace = matcher.group(1)
             }
+        }
+    }
+}
+
+// isar_flutter_libs 3.x compila contra android-30 y las dependencias androidx
+// que resuelve Gradle exigen 34+. Se fija un compileSdk alto en los plugins
+// Android, después de su build.gradle y antes de crear las variantes. El
+// compileSdk de la app ya lo fija el plugin de Flutter.
+subprojects { project ->
+    if (project.state.executed) return
+    project.afterEvaluate {
+        def androidExt = project.extensions.findByName("android")
+        if (androidExt != null) {
+            androidExt.compileSdk = 36
         }
     }
 }

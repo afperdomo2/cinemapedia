@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -47,19 +48,17 @@ class _VideoScreenState extends State<VideoScreen> {
 
     // El controller solo tiene sentido donde existe el player embebido.
     if (isMobilePlatform) {
-      _controller = YoutubePlayerController(
-        initialVideoId: widget.video.youtubeKey,
-        flags: const YoutubePlayerFlags(
-          autoPlay: true,
-          mute: false,
-        ),
+      _controller = YoutubePlayerController.fromVideoId(
+        videoId: widget.video.youtubeKey,
+        autoPlay: true,
+        params: const YoutubePlayerParams(mute: false),
       );
     }
   }
 
   @override
   void dispose() {
-    _controller?.dispose();
+    unawaited(_controller?.close());
     super.dispose();
   }
 
@@ -84,14 +83,9 @@ class _VideoScreenState extends State<VideoScreen> {
     final controller = _controller;
 
     final surface = controller != null
-        // Android / iOS: player embebido de YouTube con pantalla completa.
-        ? YoutubePlayerBuilder(
-            player: YoutubePlayer(
-              controller: controller,
-              showVideoProgressIndicator: true,
-            ),
-            builder: (context, player) => player,
-          )
+        // Android / iOS: player embebido de YouTube (controles propios y
+        // pantalla completa incluidos).
+        ? YoutubePlayer(controller: controller)
         // Escritorio: player de la app (con respaldo en el navegador).
         : _DesktopVideoPlayer(
             video: widget.video,

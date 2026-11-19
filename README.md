@@ -1,5 +1,19 @@
 # cinemapedia
 
+Catálogo de películas de TMDB: cartelera, populares, favoritos y trailers. Hecha con Flutter para Android, iOS, Linux, Windows y macOS.
+
+<div align="center">
+
+| Inicio | Detalle | Populares |
+|:---:|:---:|:---:|
+| ![Inicio](docs/screenshots/home.webp) | ![Detalle de película](docs/screenshots/movie-details.webp) | ![Películas populares](docs/screenshots/popular.webp) |
+
+| Favoritos | Buscador | Explorar |
+|:---:|:---:|:---:|
+| ![Favoritos](docs/screenshots/favorites.webp) | ![Buscador](docs/screenshots/search.webp) | ![Explorar géneros](docs/screenshots/genres.webp) |
+
+</div>
+
 ## 📚1. Documentación
 
 Esta aplicación permite a los usuarios explorar una amplia variedad de películas, ver detalles específicos de cada una, y mantenerse actualizados con las últimas novedades en el mundo del cine.
@@ -28,11 +42,21 @@ Cinemapedia es una aplicación móvil que ofrece una interfaz intuitiva y atract
 
 - **isar / isar_flutter_libs:** Base de datos local para las películas favoritas.
 
+- **media_kit / media_kit_video:** Reproductor de video embebido en escritorio (con los paquetes `media_kit_libs_*` de cada plataforma).
+
 - **package_info_plus:** Versión y número de build de la app en runtime (diálogo "Acerca de").
+
+- **path_provider:** Directorios del sistema para el caché de imágenes y los datos locales.
+
+- **share_plus:** Compartir enlaces de películas desde la app.
 
 - **shared_preferences:** Historial local de búsquedas recientes.
 
-- **youtube_player_flutter:** Reproductor de los trailers en la pantalla de videos.
+- **url_launcher:** Abrir YouTube y otros enlaces externos en el navegador del sistema.
+
+- **youtube_explode_dart:** Extrae el stream público de YouTube para reproducir trailers en escritorio.
+
+- **youtube_player_flutter:** Reproductor de los trailers en la pantalla de videos (Android e iOS).
 
 > **Plataformas soportadas:** Android e iOS como experiencia base (player embebido de YouTube). En Linux/Windows/macOS la app funciona completa: los trailers se reproducen **dentro de la app** con `media_kit`, extrayendo el stream público de YouTube con `youtube_explode_dart` (mismo mecanismo que usan reproductores open source como NewPipe o yt-dlp). Es una solución no oficial: si YouTube cambia su backend puede dejar de funcionar, y en ese caso la pantalla ofrece **"Ver en YouTube"** para abrir el video en el navegador del sistema.
 >
@@ -43,7 +67,7 @@ Cinemapedia es una aplicación móvil que ofrece una interfaz intuitiva y atract
 ## 💻2. Variables de entorno
 
 ```sh
-# Crear el archivo de variables de entono
+# Crear el archivo de variables de entorno
 touch .env
 ```
 
@@ -62,11 +86,11 @@ Base de datos con Isar (NoSQL)
 ```sh
 # Ejecutar el generador de código
 
-# Con Flutter
-flutter pub run build_runner build
-
 # Con Dart
 dart run build_runner build
+
+# Con Flutter (equivalente)
+flutter pub run build_runner build
 ```
 
 ## 📀4. API - The Movie DB
@@ -107,7 +131,7 @@ flutter analyze
 
 # Corregir automáticamente las correcciones sugeridas (ej: Comillas simples por dobles)
 dart fix --apply
-````
+```
 
 ---
 
@@ -143,9 +167,13 @@ dart run build_runner build --delete-conflicting-outputs
 
 El workflow de GitHub Actions (`.github/workflows/ci.yml`) corre `flutter analyze`, `flutter test` y el chequeo de formato en cada push y pull request.
 
+Los tests de integración viven en `integration_test/` y se ejecutan con `flutter drive` sobre un dispositivo real (no corren en la CI; ver §7.2 para las capturas del README).
+
 ---
 
-## 🎨7. Iconos
+## 🎨7. Iconos y capturas
+
+### 🖼️7.1 Iconos
 
 La identidad visual de la app vive en `brand/` como fuente única:
 
@@ -160,6 +188,20 @@ Los PNG/ICO de cada plataforma (Android, iOS, macOS, Windows y web) se generan d
 ```
 
 > **Importante:** los archivos generados se commitean, pero **no se editan a mano**. Para cambiar el icono se edita `brand/` y se vuelve a ejecutar el script (es idempotente: dos corridas producen los mismos archivos). Linux queda fuera porque el template de este repo no define icono de ventana (el launcher del `.deb` usa el PNG generado en `web/icons/`).
+
+### 📸7.2 Capturas del README
+
+Las capturas de `docs/screenshots/` (las del inicio de este README) se generan con:
+
+```sh
+# Requiere flutter con soporte de escritorio Linux, conexión a Internet
+# y Python 3 con Pillow (igual que generate-icons.sh)
+./scripts/capture-screenshots.sh
+```
+
+El script ejecuta un test de integración (`integration_test/screenshots_test.dart`) que corre la app real en una ventana, la navega con toques (inicio, detalle, populares, favoritos, buscador y géneros) y captura el árbol de render en tamaño de teléfono y tema oscuro, sin importar la ventana ni el tema del sistema. Al final convierte los PNG a WebP para que el README no pese de más.
+
+> **Importante:** las capturas se commitean, pero **no se editan a mano**. Para actualizarlas se vuelve a ejecutar el script (el contenido depende del catálogo vigente de TMDB).
 
 ---
 
@@ -209,7 +251,7 @@ También se puede copiar el APK al teléfono y abrirlo desde el gestor de archiv
 
 > **Firma:** por ahora la release se firma con las llaves de debug (ver `android/app/build.gradle`), lo que alcanza para instalar manualmente. Para publicar en Google Play hace falta un keystore propio y configurar `key.properties`.
 
-> **Versión de AGP/Gradle:** el proyecto usa AGP 8.13.x + Gradle 8.14.x (compatibles con Java 21). Flutter recomienda AGP 9+, pero `flutter_inappwebview 5.x` (dependencia transitiva de `youtube_player_flutter 8.x`) no funciona con AGP 9: se queda en 8.13.x con un workaround en `android/build.gradle` que completa el `namespace` faltante. Cuando se actualice `youtube_player_flutter` a 9.x/10.x se puede subir a AGP 9.
+> **Toolchain Android:** el proyecto usa AGP 9.1 + Gradle 9.3.1 (los del template de Flutter 3.47), compatibles con Java 21. `android/build.gradle` completa automáticamente el `namespace` de los plugins viejos que no lo declaran (p. ej. `isar_flutter_libs` 3.x), que AGP 8+ exige.
 
 ### 🐧8.3 Linux — `.deb`
 

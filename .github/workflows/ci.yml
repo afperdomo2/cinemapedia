@@ -12,9 +12,14 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Versión fijada a la del entorno de desarrollo (3.47.9). Con
+      # `channel: stable` sin versión, un SDK más nuevo deprecó
+      # flutter/material.dart y flutter analyze falló por las infos de
+      # deprecación. Los upgrades de Flutter se hacen en un PR deliberado.
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: "3.47.9"
           cache: true
 
       # .env está en .gitignore (contiene la API key de TMDB), pero pubspec.yaml

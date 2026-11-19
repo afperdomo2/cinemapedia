@@ -8,6 +8,7 @@ import 'package:cinemapedia/features/movie_details/screens/movie_details_screen.
 import 'package:cinemapedia/features/movie_details/screens/video_screen.dart';
 import 'package:cinemapedia/features/person/screens/person_screen.dart';
 import 'package:cinemapedia/features/popular/screens/popular_screen.dart';
+import 'package:cinemapedia/features/random/screens/random_movie_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -131,6 +132,14 @@ final appRouter = GoRouter(
         if (personId == null) return const RouteErrorScreen();
         return PersonScreen(personId: personId);
       },
+    ),
+
+    // Sugerencia aleatoria ("¿Qué ver hoy?") fuera del shell
+    GoRoute(
+      path: '/random',
+      name: RandomMovieScreen.name,
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RandomMovieScreen(),
     ),
   ],
 );

@@ -1,7 +1,7 @@
 import 'package:cinemapedia/common/state/movies_state.dart';
 import 'package:cinemapedia/config/helpers/human_formatter.dart';
-import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/domain/entities/person.dart';
+import 'package:cinemapedia/domain/entities/person_filmography.dart';
 import 'package:cinemapedia/features/person/providers/person_providers.dart';
 import 'package:cinemapedia/shared/widgets/error_view.dart';
 import 'package:cinemapedia/shared/widgets/movie_poster_link.dart';
@@ -10,23 +10,41 @@ import 'package:cinemapedia/shared/widgets/tmdb_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Sección de la filmografía que muestran los chips.
+enum _RoleFilter {
+  reparto('Reparto'),
+  direccion('Dirección'),
+  equipo('Equipo');
+
+  const _RoleFilter(this.label);
+
+  final String label;
+}
+
 /// Detalle de una persona: foto, datos, biografía y filmografía navegable.
-class PersonScreen extends ConsumerWidget {
+class PersonScreen extends ConsumerStatefulWidget {
   static const name = 'person-screen';
 
   const PersonScreen({super.key, required this.personId});
 
   final int personId;
 
-  void _retry(WidgetRef ref) {
-    ref.invalidate(personDetailsProvider(personId));
-    ref.invalidate(personCreditsProvider(personId));
+  @override
+  ConsumerState<PersonScreen> createState() => _PersonScreenState();
+}
+
+class _PersonScreenState extends ConsumerState<PersonScreen> {
+  _RoleFilter _role = _RoleFilter.reparto;
+
+  void _retry() {
+    ref.invalidate(personDetailsProvider(widget.personId));
+    ref.invalidate(personCreditsProvider(widget.personId));
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final personAsync = ref.watch(personDetailsProvider(personId));
-    final creditsAsync = ref.watch(personCreditsProvider(personId));
+  Widget build(BuildContext context) {
+    final personAsync = ref.watch(personDetailsProvider(widget.personId));
+    final creditsAsync = ref.watch(personCreditsProvider(widget.personId));
     final person = personAsync.valueOrNull;
 
     return Scaffold(
@@ -48,12 +66,11 @@ class PersonScreen extends ConsumerWidget {
               SliverFillRemaining(
                 child: ErrorView(
                   message: moviesErrorMessage(error),
-                  onRetry: () => _retry(ref),
+                  onRetry: _retry,
                 ),
               ),
             ],
-            data: (person) =>
-                _personSlivers(context, person, creditsAsync, ref),
+            data: (person) => _personSlivers(context, person, creditsAsync),
           ),
         ],
       ),
@@ -63,8 +80,7 @@ class PersonScreen extends ConsumerWidget {
   List<Widget> _personSlivers(
     BuildContext context,
     Person person,
-    AsyncValue<List<Movie>> creditsAsync,
-    WidgetRef ref,
+    AsyncValue<PersonFilmography> creditsAsync,
   ) {
     return [
       /// Foto y datos básicos
@@ -134,15 +150,12 @@ class PersonScreen extends ConsumerWidget {
                     .bodyMedium
                     ?.copyWith(height: 1.5),
               ),
-              const SizedBox(height: 16),
-              Text('Filmografía',
-                  style: Theme.of(context).textTheme.titleMedium),
             ],
           ),
         ),
       ),
 
-      /// Filmografía
+      /// Filmografía (conocido por + grilla por rol)
       ...creditsAsync.when(
         loading: () => [
           const SliverToBoxAdapter(
@@ -157,50 +170,156 @@ class PersonScreen extends ConsumerWidget {
             child: ErrorView(
               message: moviesErrorMessage(error),
               compact: true,
-              onRetry: () => ref.invalidate(personCreditsProvider(personId)),
+              onRetry: () =>
+                  ref.invalidate(personCreditsProvider(widget.personId)),
             ),
           ),
         ],
-        data: (movies) {
-          if (movies.isEmpty) {
-            return [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(
-                    'Sin filmografía registrada.',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ),
-              ),
-            ];
-          }
-          return [
-            SliverPadding(
-              padding: const EdgeInsets.all(12),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 150,
-                  childAspectRatio: 2 / 3,
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
-                ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => MoviePosterLink(movies[index]),
-                  childCount: movies.length,
-                ),
-              ),
-            ),
-          ];
-        },
+        data: (filmography) =>
+            _filmographySlivers(context, person, filmography),
       ),
       const SliverToBoxAdapter(child: SizedBox(height: 24)),
+    ];
+  }
+
+  List<Widget> _filmographySlivers(
+    BuildContext context,
+    Person person,
+    PersonFilmography filmography,
+  ) {
+    final knownFor = filmography.knownFor(person.knownForDepartment);
+    final credits = switch (_role) {
+      _RoleFilter.reparto => filmography.cast,
+      _RoleFilter.direccion => filmography.direction,
+      _RoleFilter.equipo => filmography.crewOther,
+    };
+
+    if (filmography.cast.isEmpty && filmography.crew.isEmpty) {
+      return [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'Sin filmografía registrada.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+        ),
+      ];
+    }
+
+    return [
+      /// Conocido por
+      if (knownFor.isNotEmpty)
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Text('Conocido por',
+                style: Theme.of(context).textTheme.titleMedium),
+          ),
+        ),
+      if (knownFor.isNotEmpty)
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 250,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: knownFor.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 10),
+              itemBuilder: (context, index) =>
+                  SizedBox(width: 130, child: _CreditItem(knownFor[index])),
+            ),
+          ),
+        ),
+
+      /// Filmografía por rol
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Filmografía',
+                  style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                children: [
+                  for (final role in _RoleFilter.values)
+                    ChoiceChip(
+                      label: Text(role.label),
+                      selected: role == _role,
+                      onSelected: (_) => setState(() => _role = role),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      if (credits.isEmpty)
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'Sin créditos en esta sección.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+        )
+      else
+        SliverPadding(
+          padding: const EdgeInsets.all(12),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 150,
+              mainAxisExtent: 250,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => _CreditItem(credits[index]),
+              childCount: credits.length,
+            ),
+          ),
+        ),
     ];
   }
 
   String _formatBirthday(String birthday) {
     final date = DateTime.tryParse(birthday);
     return (date == null) ? birthday : HumanFormatter.shortDate(date);
+  }
+}
+
+/// Póster de una película con el rol de la persona debajo.
+class _CreditItem extends StatelessWidget {
+  const _CreditItem(this.credit);
+
+  final PersonCredit credit;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final subtitle = credit.character ?? credit.job ?? '';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: MoviePosterLink(credit.movie)),
+        const SizedBox(height: 4),
+        Text(
+          subtitle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(color: colors.onSurfaceVariant),
+        ),
+      ],
+    );
   }
 }
 

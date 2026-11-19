@@ -1,5 +1,7 @@
 import 'package:cinemapedia/data/datasources/movie_cache_store.dart';
+import 'package:cinemapedia/data/models/local/movie_cache_codec.dart';
 import 'package:cinemapedia/data/repositories/cached_movie_repository.dart';
+import 'package:cinemapedia/domain/entities/genre_filter.dart';
 import 'package:cinemapedia/domain/exceptions/fetch_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -101,9 +103,25 @@ void main() {
 
   test('cacha géneros y películas por género', () async {
     await repository.getGenres();
-    await repository.discoverMoviesByGenre(28, page: 1);
+    await repository.discoverMovies(const GenreFilter(genreId: 28), page: 1);
 
-    expect(cache.entries.keys, containsAll(['genres', 'discover:28:1']));
+    expect(cache.entries.keys,
+        containsAll(['genres', 'discover:28:populares:any:1']));
+  });
+
+  test('cada combinación de filtro usa su propia clave de caché', () async {
+    await repository.discoverMovies(const GenreFilter(genreId: 28), page: 1);
+    await repository.discoverMovies(
+      const GenreFilter(
+          genreId: 28, sortBy: MovieSort.recientes, releaseYear: 2024),
+      page: 1,
+    );
+
+    expect(
+      cache.entries.keys,
+      containsAll(
+          ['discover:28:populares:any:1', 'discover:28:recientes:2024:1']),
+    );
   });
 
   test('sin red sirve los géneros cacheados', () async {
@@ -128,10 +146,27 @@ void main() {
 
     inner.personError = const FetchException('Sin conexión');
     final person = await repository.getPerson(7);
-    final credits = await repository.getPersonMovieCredits(7);
+    final filmography = await repository.getPersonMovieCredits(7);
 
     expect(person.name, 'Persona');
-    expect(credits, hasLength(2));
+    expect(filmography.cast, hasLength(2));
+    expect(filmography.crew, hasLength(2));
+  });
+
+  test('un caché con formato anterior se ignora y predomina el error',
+      () async {
+    // Payload con el formato viejo (lista plana de películas).
+    cache.entries['person_credits:7'] = CacheEntry(
+      payload: MovieCacheCodec.encodeMovies([makeMovie(id: 1)]),
+      fetchedAt: DateTime.now(),
+    );
+
+    inner.personError = const FetchException('Sin conexión');
+
+    await expectLater(
+      repository.getPersonMovieCredits(7),
+      throwsA(isA<FetchException>()),
+    );
   });
 
   test('las búsquedas se cachean por texto normalizado', () async {

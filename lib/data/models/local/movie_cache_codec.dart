@@ -6,6 +6,7 @@ import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/domain/entities/movie_details.dart';
 import 'package:cinemapedia/domain/entities/movie_page.dart';
 import 'package:cinemapedia/domain/entities/person.dart';
+import 'package:cinemapedia/domain/entities/person_filmography.dart';
 import 'package:cinemapedia/domain/entities/video.dart';
 
 /// Serialización JSON de las entidades de dominio para el caché local.
@@ -15,6 +16,17 @@ import 'package:cinemapedia/domain/entities/video.dart';
 /// al no poder decodificarse.
 class MovieCacheCodec {
   const MovieCacheCodec._();
+
+  /// Decodifica un payload de caché; devuelve `null` si no se entiende (p. ej.
+  /// quedó grabado por una versión anterior de la app). Un caché ilegible se
+  /// trata como "sin caché": nunca rompe la carga.
+  static T? tryDecode<T>(String payload, T Function(String) decode) {
+    try {
+      return decode(payload);
+    } catch (_) {
+      return null;
+    }
+  }
 
   static String encodeMoviePage(MoviePage page) => jsonEncode({
         'movies': [for (final movie in page.movies) _movieToMap(movie)],
@@ -76,6 +88,26 @@ class MovieCacheCodec {
   static Person decodePerson(String payload) =>
       _personFromMap(jsonDecode(payload) as Map<String, dynamic>);
 
+  static String encodePersonFilmography(PersonFilmography filmography) =>
+      jsonEncode({
+        'cast': [for (final credit in filmography.cast) _creditToMap(credit)],
+        'crew': [for (final credit in filmography.crew) _creditToMap(credit)],
+      });
+
+  static PersonFilmography decodePersonFilmography(String payload) {
+    final map = jsonDecode(payload) as Map<String, dynamic>;
+    return PersonFilmography(
+      cast: [
+        for (final item in map['cast'] as List)
+          _creditFromMap(item as Map<String, dynamic>),
+      ],
+      crew: [
+        for (final item in map['crew'] as List)
+          _creditFromMap(item as Map<String, dynamic>),
+      ],
+    );
+  }
+
   static String encodeGenres(List<Genre> genres) => jsonEncode([
         for (final genre in genres) {'id': genre.id, 'name': genre.name},
       ]);
@@ -106,6 +138,20 @@ class MovieCacheCodec {
         birthday: map['birthday'] as String?,
         placeOfBirth: map['placeOfBirth'] as String?,
         knownForDepartment: map['knownForDepartment'] as String?,
+      );
+
+  static Map<String, dynamic> _creditToMap(PersonCredit credit) => {
+        'movie': _movieToMap(credit.movie),
+        'character': credit.character,
+        'job': credit.job,
+        'department': credit.department,
+      };
+
+  static PersonCredit _creditFromMap(Map<String, dynamic> map) => PersonCredit(
+        movie: _movieFromMap(map['movie'] as Map<String, dynamic>),
+        character: map['character'] as String?,
+        job: map['job'] as String?,
+        department: map['department'] as String? ?? '',
       );
 
   static Map<String, dynamic> _movieToMap(Movie movie) => {

@@ -1,10 +1,12 @@
 import 'package:cinemapedia/domain/datasources/local_storage_datasource.dart';
 import 'package:cinemapedia/domain/entities/actor.dart';
 import 'package:cinemapedia/domain/entities/genre.dart';
+import 'package:cinemapedia/domain/entities/genre_filter.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/domain/entities/movie_details.dart';
 import 'package:cinemapedia/domain/entities/movie_page.dart';
 import 'package:cinemapedia/domain/entities/person.dart';
+import 'package:cinemapedia/domain/entities/person_filmography.dart';
 import 'package:cinemapedia/domain/entities/video.dart';
 import 'package:cinemapedia/domain/repositories/movie_repository.dart';
 
@@ -16,6 +18,7 @@ Movie makeMovie({
   String backdropPath = '/backdrop.jpg',
   double voteAverage = 7.5,
   int voteCount = 100,
+  double popularity = 10,
   DateTime? releaseDate,
   String overview = 'Una película de prueba.',
 }) {
@@ -27,7 +30,7 @@ Movie makeMovie({
     originalLanguage: 'en',
     originalTitle: title,
     overview: overview,
-    popularity: 10,
+    popularity: popularity,
     posterPath: posterPath,
     releaseDate: releaseDate ?? DateTime(2026, 1, 15),
     title: title,
@@ -71,6 +74,36 @@ Person makePerson(int id, {String name = 'Persona'}) {
   );
 }
 
+/// Construye una [PersonFilmography] de prueba con reparto y equipo.
+PersonFilmography makePersonFilmography() {
+  return PersonFilmography(
+    cast: [
+      PersonCredit(
+        movie: makeMovie(id: 1, title: 'Película 1', popularity: 10),
+        character: 'Personaje 1',
+        department: 'Acting',
+      ),
+      PersonCredit(
+        movie: makeMovie(id: 2, title: 'Película 2', popularity: 20),
+        character: 'Personaje 2',
+        department: 'Acting',
+      ),
+    ],
+    crew: [
+      PersonCredit(
+        movie: makeMovie(id: 3, title: 'Película 3', popularity: 30),
+        job: 'Director',
+        department: 'Directing',
+      ),
+      PersonCredit(
+        movie: makeMovie(id: 4, title: 'Película 4', popularity: 5),
+        job: 'Guionista',
+        department: 'Writing',
+      ),
+    ],
+  );
+}
+
 /// Repositorio falso con comportamiento configurable por test.
 class FakeMovieRepository implements MovieRepository {
   /// Constructor de la página que devuelve cada listado.
@@ -105,8 +138,8 @@ class FakeMovieRepository implements MovieRepository {
   Object? personError;
 
   /// Filmografía que devuelve [getPersonMovieCredits].
-  List<Movie> Function(int personId) creditsBuilder =
-      (personId) => [makeMovie(id: 1), makeMovie(id: 2)];
+  PersonFilmography Function(int personId) creditsBuilder =
+      (personId) => makePersonFilmography();
 
   /// Registro de llamadas para las aserciones.
   final List<String> calls = [];
@@ -143,8 +176,10 @@ class FakeMovieRepository implements MovieRepository {
   }
 
   @override
-  Future<MoviePage> discoverMoviesByGenre(int genreId, {int page = 1}) =>
-      _page('discover:$genreId', page);
+  Future<MoviePage> discoverMovies(GenreFilter filter, {int page = 1}) => _page(
+        'discover:${filter.genreId}:${filter.sortBy.name}:${filter.releaseYear}',
+        page,
+      );
 
   @override
   Future<Person> getPerson(int personId) async {
@@ -155,11 +190,24 @@ class FakeMovieRepository implements MovieRepository {
   }
 
   @override
-  Future<List<Movie>> getPersonMovieCredits(int personId) async {
+  Future<PersonFilmography> getPersonMovieCredits(int personId) async {
     calls.add('personCredits:$personId');
     final error = personError;
     if (error != null) throw error;
     return creditsBuilder(personId);
+  }
+
+  /// Error configurable y contador de sorteos para [getRandomMovie].
+  Object? randomError;
+  int randomDraws = 0;
+
+  @override
+  Future<Movie> getRandomMovie({int? genreId, double? minVoteAverage}) async {
+    calls.add('random:$genreId:$minVoteAverage');
+    final error = randomError;
+    if (error != null) throw error;
+    randomDraws += 1;
+    return makeMovie(id: 900 + randomDraws, title: 'Sugerencia $randomDraws');
   }
 
   @override

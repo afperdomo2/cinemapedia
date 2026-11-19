@@ -5,6 +5,7 @@ import 'package:cinemapedia/common/state/movies_state.dart';
 import 'package:cinemapedia/domain/entities/genre.dart';
 import 'package:cinemapedia/features/genres/providers/genres_provider.dart';
 import 'package:cinemapedia/features/genres/screens/movies_by_genre_screen.dart';
+import 'package:cinemapedia/features/random/screens/random_movie_screen.dart';
 import 'package:cinemapedia/shared/widgets/error_view.dart';
 import 'package:cinemapedia/shared/widgets/movie_search_icon_button.dart';
 import 'package:flutter/material.dart';
@@ -64,19 +65,73 @@ class _GenresScreenState extends ConsumerState<GenresScreen> {
         ),
         actions: const [MovieSearchIconButton()],
       ),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: genresAsync.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(strokeWidth: 2),
+      body: Column(
+        children: [
+          const _SuggestionBanner(),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _refresh,
+              child: genresAsync.when(
+                loading: () => const Center(
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                error: (error, _) => ErrorView(
+                  message: moviesErrorMessage(error),
+                  onRetry: () => ref.invalidate(genresProvider),
+                ),
+                data: (genres) => _GenresGrid(
+                  genres: genres,
+                  controller: _scrollController,
+                ),
+              ),
+            ),
           ),
-          error: (error, _) => ErrorView(
-            message: moviesErrorMessage(error),
-            onRetry: () => ref.invalidate(genresProvider),
-          ),
-          data: (genres) => _GenresGrid(
-            genres: genres,
-            controller: _scrollController,
+        ],
+      ),
+    );
+  }
+}
+
+/// Entrada a "¿Qué ver hoy?".
+class _SuggestionBanner extends StatelessWidget {
+  const _SuggestionBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final textStyles = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => context.pushNamed(RandomMovieScreen.name),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(Icons.casino_outlined, size: 32, color: colors.primary),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('¿Qué ver hoy?',
+                          style: textStyles.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Una sugerencia al azar para vos',
+                        style: textStyles.bodySmall
+                            ?.copyWith(color: colors.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right),
+              ],
+            ),
           ),
         ),
       ),

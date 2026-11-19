@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cinemapedia/config/constants/environment.dart';
 import 'package:cinemapedia/data/mappers/actor_mapper.dart';
 import 'package:cinemapedia/data/mappers/genre_mapper.dart';
@@ -15,18 +17,25 @@ import 'package:cinemapedia/data/models/tmdb/person_tmdb_response.dart';
 import 'package:cinemapedia/domain/datasources/movie_datasource.dart';
 import 'package:cinemapedia/domain/entities/actor.dart';
 import 'package:cinemapedia/domain/entities/genre.dart';
+import 'package:cinemapedia/domain/entities/genre_filter.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/domain/entities/movie_details.dart';
 import 'package:cinemapedia/domain/entities/movie_page.dart';
 import 'package:cinemapedia/domain/entities/person.dart';
+import 'package:cinemapedia/domain/entities/person_filmography.dart';
 import 'package:cinemapedia/domain/entities/video.dart';
 import 'package:cinemapedia/domain/exceptions/fetch_exception.dart';
 import 'package:dio/dio.dart';
 
 class MovieTMDbDataSource extends MovieDataSource {
-  MovieTMDbDataSource({Dio? dioClient}) : dio = dioClient ?? _createDio();
+  MovieTMDbDataSource({Dio? dioClient, Random? random})
+      : dio = dioClient ?? _createDio(),
+        _random = random ?? Random();
 
   final Dio dio;
+
+  /// Fuente de azar para las sugerencias (inyectable para los tests).
+  final Random _random;
 
   static Dio _createDio() {
     return Dio(BaseOptions(
@@ -144,11 +153,51 @@ class MovieTMDbDataSource extends MovieDataSource {
   }
 
   @override
-  Future<MoviePage> discoverMoviesByGenre(int genreId, {int page = 1}) {
+  Future<MoviePage> discoverMovies(GenreFilter filter, {int page = 1}) {
     return _getMoviePage(
       '/discover/movie',
       page: page,
-      extraQueryParameters: {'with_genres': genreId},
+      extraQueryParameters: filter.queryParameters,
+    );
+  }
+
+  @override
+  Future<Movie> getRandomMovie({int? genreId, double? minVoteAverage}) async {
+    final filters = {
+      'sort_by': 'popularity.desc',
+      // Solo películas con cierto respaldo: el azar no debe traer rarezas.
+      'vote_count.gte': 500,
+      if (genreId != null) 'with_genres': genreId,
+      if (minVoteAverage != null) 'vote_average.gte': minVoteAverage,
+    };
+
+    // TMDB no tiene "aleatorio": se sortea una página y después una película.
+    final firstPage = await _getJson('/discover/movie', queryParameters: {
+      ...filters,
+      'page': 1,
+    });
+    final totalPages = (firstPage['total_pages'] as num?)?.toInt() ?? 0;
+    if (totalPages == 0) {
+      throw const FetchException(
+          'No encontramos sugerencias con esos filtros.');
+    }
+
+    // TMDB limita la paginación a 500 páginas de resultados.
+    final page = _random.nextInt(totalPages.clamp(1, 500)) + 1;
+    final data = (page == 1)
+        ? firstPage
+        : await _getJson('/discover/movie', queryParameters: {
+            ...filters,
+            'page': page,
+          });
+
+    final results = MovieListTMDbResponse.fromJson(data).results;
+    if (results.isEmpty) {
+      throw const FetchException(
+          'No encontramos sugerencias con esos filtros.');
+    }
+    return MovieMapper.movieTMDbResponseToEntity(
+      results[_random.nextInt(results.length)],
     );
   }
 
@@ -161,16 +210,12 @@ class MovieTMDbDataSource extends MovieDataSource {
   }
 
   @override
-  Future<List<Movie>> getPersonMovieCredits(int personId) async {
+  Future<PersonFilmography> getPersonMovieCredits(int personId) async {
     final data = await _getJson('/person/$personId/movie_credits');
-    final movies = PersonMovieCreditsTMDbResponse.fromJson(data)
-        .cast
-        .map(MovieMapper.movieTMDbResponseToEntity)
-        .toList();
-
-    // La filmografía viene sin orden garantizado: la más popular primero.
-    movies.sort((a, b) => b.popularity.compareTo(a.popularity));
-    return movies;
+    // Reparto y equipo; el mapper los ordena por popularidad.
+    return PersonMapper.movieCreditsTMDbResponseToEntity(
+      PersonMovieCreditsTMDbResponse.fromJson(data),
+    );
   }
 
   @override

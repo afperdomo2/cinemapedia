@@ -31,17 +31,47 @@ class PersonTMDbResponse {
       );
 }
 
+/// Crédito de `person/{id}/movie_credits`: película + personaje/cargo.
+class PersonCreditTMDbResponse {
+  final MovieTMDbResponse movie;
+  final String? character;
+  final String? job;
+  final String department;
+
+  PersonCreditTMDbResponse({
+    required this.movie,
+    required this.character,
+    required this.job,
+    required this.department,
+  });
+
+  factory PersonCreditTMDbResponse.fromJson(Map<String, dynamic> json) =>
+      PersonCreditTMDbResponse(
+        movie: MovieTMDbResponse.fromJson(json),
+        character: json['character'],
+        job: json['job'],
+        department: json['department'] ?? '',
+      );
+}
+
 class PersonMovieCreditsTMDbResponse {
-  final List<MovieTMDbResponse> cast;
+  final List<PersonCreditTMDbResponse> cast;
+  final List<PersonCreditTMDbResponse> crew;
 
   PersonMovieCreditsTMDbResponse({
     required this.cast,
+    required this.crew,
   });
 
   factory PersonMovieCreditsTMDbResponse.fromJson(Map<String, dynamic> json) =>
       PersonMovieCreditsTMDbResponse(
-        cast: List<MovieTMDbResponse>.from(
-          (json['cast'] ?? const []).map((x) => MovieTMDbResponse.fromJson(x)),
+        cast: List<PersonCreditTMDbResponse>.from(
+          (json['cast'] ?? const [])
+              .map((x) => PersonCreditTMDbResponse.fromJson(x)),
+        ),
+        crew: List<PersonCreditTMDbResponse>.from(
+          (json['crew'] ?? const [])
+              .map((x) => PersonCreditTMDbResponse.fromJson(x)),
         ),
       );
 }

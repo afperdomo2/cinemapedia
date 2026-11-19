@@ -39,10 +39,11 @@ void main() {
   });
 
   group('personCreditsProvider', () {
-    test('devuelve la filmografía', () async {
-      final movies = await container.read(personCreditsProvider(7).future);
+    test('devuelve la filmografía (reparto y equipo)', () async {
+      final filmography = await container.read(personCreditsProvider(7).future);
 
-      expect(movies, hasLength(2));
+      expect(filmography.cast, hasLength(2));
+      expect(filmography.crew, hasLength(2));
       expect(fakeRepository.calls, contains('personCredits:7'));
     });
 

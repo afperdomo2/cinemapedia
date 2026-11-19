@@ -1,10 +1,12 @@
 import 'package:cinemapedia/data/datasources/movie_cache_store.dart';
 import 'package:cinemapedia/data/models/local/movie_cache_codec.dart';
 import 'package:cinemapedia/domain/entities/genre.dart';
+import 'package:cinemapedia/domain/entities/genre_filter.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/domain/entities/movie_details.dart';
 import 'package:cinemapedia/domain/entities/movie_page.dart';
 import 'package:cinemapedia/domain/entities/person.dart';
+import 'package:cinemapedia/domain/entities/person_filmography.dart';
 import 'package:cinemapedia/domain/exceptions/fetch_exception.dart';
 import 'package:cinemapedia/domain/repositories/movie_repository.dart';
 
@@ -58,18 +60,29 @@ class CachedMovieRepository implements MovieRepository {
       await _cache.put(key, MovieCacheCodec.encodeGenres(result));
       return result;
     } on FetchException {
-      final entry = await _cache.read(key);
-      if (entry == null) rethrow;
-      return MovieCacheCodec.decodeGenres(entry.payload);
+      final cached = await _readCached('genres', MovieCacheCodec.decodeGenres);
+      if (cached == null) rethrow;
+      return cached;
     }
   }
 
   @override
-  Future<MoviePage> discoverMoviesByGenre(int genreId, {int page = 1}) {
+  Future<MoviePage> discoverMovies(GenreFilter filter, {int page = 1}) {
+    // La clave de caché distingue cada combinación de género + orden + año.
+    final year = filter.releaseYear?.toString() ?? 'any';
     return _moviePage(
-      'discover:$genreId',
+      'discover:${filter.genreId}:${filter.sortBy.name}:$year',
       page,
-      () => _inner.discoverMoviesByGenre(genreId, page: page),
+      () => _inner.discoverMovies(filter, page: page),
+    );
+  }
+
+  @override
+  Future<Movie> getRandomMovie({int? genreId, double? minVoteAverage}) {
+    // Sin caché: el valor de la sugerencia está en que cada vez cambie.
+    return _inner.getRandomMovie(
+      genreId: genreId,
+      minVoteAverage: minVoteAverage,
     );
   }
 
@@ -81,23 +94,24 @@ class CachedMovieRepository implements MovieRepository {
       await _cache.put(key, MovieCacheCodec.encodePerson(result));
       return result;
     } on FetchException {
-      final entry = await _cache.read(key);
-      if (entry == null) rethrow;
-      return MovieCacheCodec.decodePerson(entry.payload);
+      final cached = await _readCached(key, MovieCacheCodec.decodePerson);
+      if (cached == null) rethrow;
+      return cached;
     }
   }
 
   @override
-  Future<List<Movie>> getPersonMovieCredits(int personId) async {
+  Future<PersonFilmography> getPersonMovieCredits(int personId) async {
     final key = 'person_credits:$personId';
     try {
       final result = await _inner.getPersonMovieCredits(personId);
-      await _cache.put(key, MovieCacheCodec.encodeMovies(result));
+      await _cache.put(key, MovieCacheCodec.encodePersonFilmography(result));
       return result;
     } on FetchException {
-      final entry = await _cache.read(key);
-      if (entry == null) rethrow;
-      return MovieCacheCodec.decodeMovies(entry.payload);
+      final cached =
+          await _readCached(key, MovieCacheCodec.decodePersonFilmography);
+      if (cached == null) rethrow;
+      return cached;
     }
   }
 
@@ -109,9 +123,9 @@ class CachedMovieRepository implements MovieRepository {
       await _cache.put(key, MovieCacheCodec.encodeMovieDetails(result));
       return result;
     } on FetchException {
-      final entry = await _cache.read(key);
-      if (entry == null) rethrow;
-      return MovieCacheCodec.decodeMovieDetails(entry.payload);
+      final cached = await _readCached(key, MovieCacheCodec.decodeMovieDetails);
+      if (cached == null) rethrow;
+      return cached;
     }
   }
 
@@ -126,10 +140,19 @@ class CachedMovieRepository implements MovieRepository {
       await _cache.put(key, MovieCacheCodec.encodeMoviePage(result));
       return result;
     } on FetchException {
-      final entry = await _cache.read(key);
-      if (entry == null) rethrow;
+      final cached = await _readCached(key, MovieCacheCodec.decodeMoviePage);
+      if (cached == null) rethrow;
       // Contenido guardado: la UI lo marca como "sin conexión".
-      return MovieCacheCodec.decodeMoviePage(entry.payload);
+      return cached;
     }
+  }
+
+  /// Lee una entrada de caché; `null` si no hay nada o su formato no se
+  /// entiende (p. ej. quedó grabado por una versión anterior de la app).
+  Future<T?> _readCached<T>(String key, T Function(String) decode) async {
+    final entry = await _cache.read(key);
+    return (entry == null)
+        ? null
+        : MovieCacheCodec.tryDecode(entry.payload, decode);
   }
 }

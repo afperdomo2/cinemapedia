@@ -1,9 +1,11 @@
 import 'package:cinemapedia/domain/datasources/movie_datasource.dart';
 import 'package:cinemapedia/domain/entities/genre.dart';
+import 'package:cinemapedia/domain/entities/genre_filter.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/domain/entities/movie_details.dart';
 import 'package:cinemapedia/domain/entities/movie_page.dart';
 import 'package:cinemapedia/domain/entities/person.dart';
+import 'package:cinemapedia/domain/entities/person_filmography.dart';
 import 'package:cinemapedia/domain/repositories/movie_repository.dart';
 
 class MovieRepositoryImpl extends MovieRepository {
@@ -47,8 +49,16 @@ class MovieRepositoryImpl extends MovieRepository {
   }
 
   @override
-  Future<MoviePage> discoverMoviesByGenre(int genreId, {int page = 1}) {
-    return movieDataSource.discoverMoviesByGenre(genreId, page: page);
+  Future<MoviePage> discoverMovies(GenreFilter filter, {int page = 1}) {
+    return movieDataSource.discoverMovies(filter, page: page);
+  }
+
+  @override
+  Future<Movie> getRandomMovie({int? genreId, double? minVoteAverage}) {
+    return movieDataSource.getRandomMovie(
+      genreId: genreId,
+      minVoteAverage: minVoteAverage,
+    );
   }
 
   @override
@@ -57,7 +67,7 @@ class MovieRepositoryImpl extends MovieRepository {
   }
 
   @override
-  Future<List<Movie>> getPersonMovieCredits(int personId) {
+  Future<PersonFilmography> getPersonMovieCredits(int personId) {
     return movieDataSource.getPersonMovieCredits(personId);
   }
 }

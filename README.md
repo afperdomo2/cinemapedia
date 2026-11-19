@@ -14,84 +14,101 @@ Catálogo de películas de TMDB: cartelera, populares, favoritos y trailers. Hec
 
 </div>
 
-## 📚1. Documentación
+**Índice:** [1. Documentación](#doc) · [2. Variables de entorno](#env) · [3. Isar Database](#isar) · [4. API - The Movie DB](#tmdb) · [5. Ayuda](#ayuda) · [6. Tests y CI](#ci) · [7. Iconos y capturas](#assets) · [8. Compilación y distribución](#build)
 
-Esta aplicación permite a los usuarios explorar una amplia variedad de películas, ver detalles específicos de cada una, y mantenerse actualizados con las últimas novedades en el mundo del cine.
+<a id="doc"></a>
+
+## 📚1. Documentación
 
 ### 1.1 Descripción de la Aplicación
 
-Cinemapedia es una aplicación móvil que ofrece una interfaz intuitiva y atractiva para que los usuarios puedan descubrir y explorar películas. La aplicación utiliza diversas APIs para obtener información actualizada sobre películas, incluyendo detalles como sinopsis, elenco, fechas de lanzamiento, y más. Además, la aplicación está diseñada para ser rápida y eficiente, proporcionando una experiencia de usuario fluida y agradable.
+Cinemapedia permite explorar el catálogo de **TMDB**: cartelera, populares, películas por género, búsqueda y favoritos, con el detalle de cada título (sinopsis, elenco, fechas de lanzamiento) y sus trailers. La información se obtiene de la API de TMDB; los trailers se reproducen dentro de la app (en móvil, con el reproductor oficial de YouTube). Está hecha con Flutter y corre en Android, iOS, Linux, Windows y macOS.
 
 ### 1.2 Bibliotecas y Dependencias Utilizadas
 
-- **cached_network_image:** Caché en disco y memoria para las imágenes de TMDB y YouTube.
+Las versiones exactas viven en `pubspec.yaml`; aquí se resume para qué sirve cada una:
 
-- **card_swiper:** Utilizada para crear carruseles de tarjetas.
+| Paquete | Categoría | Para qué se usa |
+| --- | --- | --- |
+| `flutter_riverpod` | Estado y navegación | Gestión de estado y providers |
+| `go_router` | Estado y navegación | Navegación declarativa entre pantallas |
+| `dio` | Red y datos | Cliente HTTP para la API de TMDB (con timeouts y errores mapeados a dominio) |
+| `flutter_dotenv` | Red y datos | Carga de la API key desde el archivo `.env` |
+| `isar` + `isar_flutter_libs` | Red y datos | Base de datos local (NoSQL) para las películas favoritas |
+| `cached_network_image` | UI y multimedia | Caché en disco y memoria para pósters e imágenes |
+| `card_swiper` | UI y multimedia | Carruseles de tarjetas (cartelera) |
+| `media_kit` + `media_kit_video` | UI y multimedia | Reproductor de video embebido en escritorio (con los `media_kit_libs_*` de cada plataforma) |
+| `youtube_explode_dart` | UI y multimedia | Extrae el stream público de YouTube para reproducir trailers en escritorio |
+| `youtube_player_flutter` | UI y multimedia | Reproductor de los trailers en Android e iOS |
+| `flutter_localizations` | Localización | Widgets de Material al español |
+| `intl` | Localización | Formateo de fechas y números |
+| `package_info_plus` | Sistema y utilidades | Versión y build de la app en runtime (diálogo "Acerca de") |
+| `path_provider` | Sistema y utilidades | Directorios del sistema para el caché de imágenes y los datos locales |
+| `share_plus` | Sistema y utilidades | Compartir enlaces de películas desde la app |
+| `shared_preferences` | Sistema y utilidades | Historial local de búsquedas recientes |
+| `url_launcher` | Sistema y utilidades | Abrir YouTube y otros enlaces externos en el navegador del sistema |
+| `build_runner` | Desarrollo (`dev_dependencies`) | Ejecuta la generación de código |
+| `isar_generator` | Desarrollo | Genera el código de las colecciones de Isar |
+| `flutter_lints` | Desarrollo | Reglas de lint (`analysis_options.yaml`) |
+| `flutter_test` + `integration_test` | Desarrollo | Tests unitarios, de widgets e integración |
 
-- **dio:** Dio es una biblioteca de cliente HTTP que se utiliza para realizar solicitudes a las APIs (con timeouts y mapeo de errores a dominio).
-
-- **flutter_dotenv:** Esta biblioteca permite cargar variables de entorno desde un archivo .env.
-
-- **flutter_localizations:** Localización de los widgets de Material al español.
-
-- **flutter_riverpod:** Riverpod es una biblioteca de gestión de estado que facilita la creación de aplicaciones escalables y mantenibles.
-
-- **go_router:** Go Router es una biblioteca de enrutamiento para Flutter que simplifica la navegación dentro de la aplicación. Permite definir rutas de manera declarativa y manejar la navegación de manera eficiente.
-
-- **intl:** La biblioteca intl se utiliza para la internacionalización y formateo de fechas y números.
-
-- **isar / isar_flutter_libs:** Base de datos local para las películas favoritas.
-
-- **media_kit / media_kit_video:** Reproductor de video embebido en escritorio (con los paquetes `media_kit_libs_*` de cada plataforma).
-
-- **package_info_plus:** Versión y número de build de la app en runtime (diálogo "Acerca de").
-
-- **path_provider:** Directorios del sistema para el caché de imágenes y los datos locales.
-
-- **share_plus:** Compartir enlaces de películas desde la app.
-
-- **shared_preferences:** Historial local de búsquedas recientes.
-
-- **url_launcher:** Abrir YouTube y otros enlaces externos en el navegador del sistema.
-
-- **youtube_explode_dart:** Extrae el stream público de YouTube para reproducir trailers en escritorio.
-
-- **youtube_player_flutter:** Reproductor de los trailers en la pantalla de videos (Android e iOS).
+> **Nota:** `card_swiper` **no** se usa desde pub: hay una copia local parcheada en `packages/card_swiper` (vía `dependency_overrides`) que corrige un error de precisión al redimensionar ventanas en desktop. El detalle está en `packages/card_swiper/PATCHES.md`; si actualizás el paquete, revisá ese parche.
 
 > **Plataformas soportadas:** Android e iOS como experiencia base (player embebido de YouTube). En Linux/Windows/macOS la app funciona completa: los trailers se reproducen **dentro de la app** con `media_kit`, extrayendo el stream público de YouTube con `youtube_explode_dart` (mismo mecanismo que usan reproductores open source como NewPipe o yt-dlp). Es una solución no oficial: si YouTube cambia su backend puede dejar de funcionar, y en ese caso la pantalla ofrece **"Ver en YouTube"** para abrir el video en el navegador del sistema.
 >
 > **Requisitos para compilar en Linux:** `media_kit` enlaza contra el libmpv del sistema. En Ubuntu/Debian: `sudo apt install libmpv-dev` (ya vienen `libepoxy-dev` y las GTK que usa Flutter).
 
-> **Nota de seguridad:** `.env` se empaqueta dentro del binario para que la app lea la API key de TMDB. Restringí la key desde la consola de TMDB (por referrer/paquete) para evitar usos indebidos.
+### 1.3 Estructura del Proyecto
 
-## 💻2. Variables de entorno
-
-```sh
-# Crear el archivo de variables de entorno
-touch .env
+```text
+lib/
+├── common/     # estados y widgets transversales
+├── config/     # tema, router, constantes, responsive y soporte por plataforma
+├── data/       # datasources, modelos, mappers y repositorios (TMDB + Isar)
+├── domain/     # entidades, excepciones y contratos de datasource/repositorio
+├── features/   # pantallas: home, movie_details, popular, favorites, genres, person
+├── providers/  # providers de Riverpod
+└── shared/     # widgets, servicios y delegates reutilizables (búsqueda)
 ```
-
-En el archivo `.env`, tomar como base el archivo de `example.env`, para crear las variables
 
 ---
 
-## 💾3. Isar Database
+<a id="env"></a>
 
-Base de datos con Isar (NoSQL)
+## 💻2. Variables de entorno
 
-<https://isar.dev/es/>
-
-<https://isar.dev/es/tutorials/quickstart.html>
+La app lee la API key de TMDB de un archivo `.env` en la raíz del proyecto (empaquetado como asset). Se crea a partir del ejemplo:
 
 ```sh
-# Ejecutar el generador de código
-
-# Con Dart
-dart run build_runner build
-
-# Con Flutter (equivalente)
-flutter pub run build_runner build
+cp example.env .env
 ```
+
+```sh
+# Contenido de example.env
+THE_MOVIE_DB_API_KEY=your_api_key
+```
+
+Reemplazá `your_api_key` por tu API key (ver §4). El código que la lee está en `lib/config/constants/environment.dart`.
+
+> **Nota de seguridad:** `.env` se empaqueta dentro del binario para que la app lea la API key de TMDB. Restringí la key desde la consola de TMDB (por referrer/paquete) para evitar usos indebidos.
+
+---
+
+<a id="isar"></a>
+
+## 💾3. Isar Database
+
+Base de datos local (NoSQL) para las películas favoritas (<https://isar.dev/es/>). Después de crear o modificar una colección, regenerá el código:
+
+```sh
+dart run build_runner build --delete-conflicting-outputs
+```
+
+Guía oficial: <https://isar.dev/es/tutorials/quickstart.html>
+
+---
+
+<a id="tmdb"></a>
 
 ## 📀4. API - The Movie DB
 
@@ -99,15 +116,17 @@ flutter pub run build_runner build
 - Ir al menú de **ajustes**
 - Ir a la sección de **API**
 - Crear o generar una **API KEY**
-- Copiar esa API KEY en las **variables de entorno**
+- Copiar esa API KEY en el archivo `.env` (ver §2)
 
 URL de la API: <https://www.themoviedb.org/>
 
 Documentación de desarrollo: <https://developer.themoviedb.org/docs/getting-started>
 
-Endpoints: <https://developer.themoviedb.org/reference/authentication-how-do-i-generate-a-session-id>
+Referencia de endpoints: <https://developer.themoviedb.org/reference/intro/getting-started>
 
 ---
+
+<a id="ayuda"></a>
 
 ## ⛑️5. Ayuda
 
@@ -155,21 +174,24 @@ flutter doctor
 
 ---
 
+<a id="ci"></a>
+
 ## 🧪6. Tests y CI
 
 ```sh
-# Ejecutar todos los tests (unitarios y de widgets)
-flutter test
-
-# Regenerar el código de Isar tras cambiar las colecciones
-dart run build_runner build --delete-conflicting-outputs
+# Los mismos chequeos que corre la CI en cada push y pull request
+flutter analyze                                           # sin issues
+dart format --output=none --set-exit-if-changed .         # formato estable
+flutter test                                              # tests unitarios y de widgets
 ```
 
-El workflow de GitHub Actions (`.github/workflows/ci.yml`) corre `flutter analyze`, `flutter test` y el chequeo de formato en cada push y pull request.
+El workflow de GitHub Actions (`.github/workflows/ci.yml`) ejecuta esos tres comandos en cada push y pull request. Tras cambiar las colecciones de Isar, regenerá el código (ver §3).
 
 Los tests de integración viven en `integration_test/` y se ejecutan con `flutter drive` sobre un dispositivo real (no corren en la CI; ver §7.2 para las capturas del README).
 
 ---
+
+<a id="assets"></a>
 
 ## 🎨7. Iconos y capturas
 
@@ -204,6 +226,8 @@ El script ejecuta un test de integración (`integration_test/screenshots_test.da
 > **Importante:** las capturas se commitean, pero **no se editan a mano**. Para actualizarlas se vuelve a ejecutar el script (el contenido depende del catálogo vigente de TMDB).
 
 ---
+
+<a id="build"></a>
 
 ## 🚀8. Compilación y distribución
 
